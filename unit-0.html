@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyActuarial — Phase 0: Python Foundations (Units 0.1–0.4)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;1,8..60,300&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --ink:       #0e1117;
+  --ink-mid:   #3a4152;
+  --ink-soft:  #6b7280;
+  --ink-ghost: #9ca3af;
+  --paper:     #fafaf8;
+  --paper-2:   #f3f2ef;
+  --paper-3:   #e8e6e1;
+  --teal:      #0a7c5c;
+  --teal-dim:  #d4ede6;
+  --amber:     #92530a;
+  --amber-dim: #fdf0dd;
+  --blue:      #1e4fa0;
+  --blue-dim:  #dce8fb;
+  --red-dim:   #fde8e8;
+  --border:    #ddd9d3;
+  --code-bg:   #111318;
+  --code-border:#1f2430;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Syne', sans-serif;
+  --serif: 'Source Serif 4', Georgia, serif;
+}
+
+html { scroll-behavior:smooth; font-size:16px; }
+body { background:var(--paper); color:var(--ink); font-family:var(--serif); line-height:1.75; }
+
+/* ── TOP NAV ── */
+.top-nav {
+  position:sticky; top:0; z-index:200;
+  background:rgba(250,250,248,0.94); backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+  height:52px; padding:0 2rem;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.nav-brand { font-family:var(--sans); font-weight:700; font-size:15px; color:var(--teal); letter-spacing:-0.02em; }
+.nav-crumb { font-family:var(--sans); font-size:12px; color:var(--ink-soft); }
+.nav-right { display:flex; gap:8px; }
+.unit-pill {
+  font-family:var(--sans); font-size:11px; font-weight:600;
+  padding:3px 10px; border-radius:99px; cursor:pointer; transition:all .15s;
+  border:1px solid var(--border); color:var(--ink-soft); background:transparent;
+}
+.unit-pill.active { background:var(--ink); color:white; border-color:var(--ink); }
+
+/* ── UNIT PAGES ── */
+.unit-page { display:none; }
+.unit-page.active { display:block; }
+
+/* ── HERO ── */
+.hero {
+  background:var(--ink); color:white;
+  padding:4.5rem 2rem 3.5rem;
+  position:relative; overflow:hidden;
+}
+.hero-grid {
+  max-width:860px; margin:0 auto;
+  display:grid; grid-template-columns:1fr auto;
+  gap:2rem; align-items:end;
+}
+.hero::after {
+  content:''; position:absolute; right:-80px; top:-80px;
+  width:420px; height:420px; border-radius:50%;
+  background:radial-gradient(circle,rgba(10,124,92,.18) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero-phase { font-family:var(--mono); font-size:11px; color:var(--teal); letter-spacing:.1em; text-transform:uppercase; margin-bottom:1.2rem; }
+.hero-title { font-family:var(--sans); font-size:clamp(1.9rem,4.5vw,3rem); font-weight:700; line-height:1.1; letter-spacing:-0.03em; color:white; margin-bottom:1rem; }
+.hero-title span { color:#6ee7c4; }
+.hero-sub { font-family:var(--serif); font-size:16px; color:#94a3b8; font-weight:300; line-height:1.7; max-width:520px; }
+.hero-meta { display:flex; flex-direction:column; gap:10px; align-items:flex-end; }
+.meta-chip { font-family:var(--sans); font-size:11px; font-weight:600; white-space:nowrap; padding:5px 12px; border-radius:6px; background:rgba(255,255,255,.07); color:#94a3b8; letter-spacing:.04em; }
+.meta-chip.green { background:rgba(10,124,92,.25); color:#6ee7c4; }
+
+/* ── BODY ── */
+.body-wrap { max-width:860px; margin:0 auto; padding:3rem 2rem 6rem; }
+
+/* ── SECTION ── */
+.section { margin-bottom:3.5rem; }
+.sec-num { font-family:var(--mono); font-size:11px; color:var(--teal); letter-spacing:.09em; text-transform:uppercase; margin-bottom:.5rem; }
+.sec-title { font-family:var(--sans); font-size:1.45rem; font-weight:700; letter-spacing:-.02em; color:var(--ink); margin-bottom:1rem; line-height:1.2; }
+.sec-body { font-size:15.5px; color:var(--ink-mid); line-height:1.8; }
+.sec-body p { margin-bottom:1rem; }
+
+hr.div { border:none; border-top:1px solid var(--border); margin:3rem 0; }
+
+/* ── CALLOUT ── */
+.callout { border-left:3px solid var(--teal); background:var(--teal-dim); padding:1rem 1.25rem; border-radius:0 8px 8px 0; margin:1.5rem 0; font-size:14.5px; color:#0a3d2e; line-height:1.65; }
+.callout b { font-weight:600; }
+.callout.amber { border-color:var(--amber); background:var(--amber-dim); color:#4a2a05; }
+.callout.blue  { border-color:var(--blue);  background:var(--blue-dim);  color:#0f2a60; }
+
+/* ── FULL CODE BLOCK ── */
+.code-block { border-radius:12px; overflow:hidden; border:1px solid var(--code-border); margin:1.5rem 0; }
+.code-top {
+  background:#1a1f2e; padding:9px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.code-top-left { display:flex; align-items:center; gap:10px; }
+.code-dots { display:flex; gap:5px; }
+.code-dots span { width:10px; height:10px; border-radius:50%; display:block; }
+.code-dots .d1 { background:#ff5f57; }
+.code-dots .d2 { background:#febc2e; }
+.code-dots .d3 { background:#28c840; }
+.code-cell-label { font-family:var(--mono); font-size:11px; color:#4b5675; letter-spacing:.06em; }
+.code-title-text { font-family:var(--mono); font-size:12px; color:#7c88a8; }
+.copy-btn { font-family:var(--mono); font-size:11px; color:#4b5675; background:transparent; border:1px solid #2d3450; border-radius:4px; padding:2px 8px; cursor:pointer; transition:all .15s; }
+.copy-btn:hover { color:#6ee7c4; border-color:#6ee7c4; }
+.copy-btn.copied { color:#6ee7c4; border-color:#6ee7c4; }
+pre.code-body {
+  background:var(--code-bg); margin:0; padding:1.4rem 1.6rem;
+  font-family:var(--mono); font-size:13px; line-height:1.75;
+  color:#c9d1d9; overflow-x:auto;
+}
+
+/* ── LINE-BY-LINE BREAKDOWN ── */
+.breakdown { margin:0 0 2rem; border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+.breakdown-header {
+  background:var(--paper-2); padding:10px 18px;
+  display:flex; align-items:center; gap:8px;
+  border-bottom:1px solid var(--border);
+}
+.breakdown-header-text { font-family:var(--sans); font-size:12px; font-weight:600; color:var(--ink-soft); letter-spacing:.04em; text-transform:uppercase; }
+.breakdown-toggle { margin-left:auto; font-family:var(--sans); font-size:11px; color:var(--ink-ghost); cursor:pointer; border:1px solid var(--border); border-radius:4px; padding:2px 8px; background:transparent; transition:all .15s; }
+.breakdown-toggle:hover { color:var(--ink); border-color:var(--ink-soft); }
+.line-rows { }
+.line-row {
+  display:grid; grid-template-columns:auto 1fr;
+  border-bottom:1px solid var(--paper-3);
+  transition:background .12s;
+}
+.line-row:last-child { border-bottom:none; }
+.line-row:hover { background:var(--paper-2); }
+.line-code {
+  padding:.7rem 1rem .7rem 1.25rem;
+  font-family:var(--mono); font-size:12.5px; color:#0a7c5c;
+  white-space:nowrap; border-right:1px solid var(--paper-3);
+  background:rgba(250,250,248,.6);
+  display:flex; align-items:flex-start; min-width:0;
+}
+.line-exp-text {
+  padding:.7rem 1.25rem;
+  font-family:var(--serif); font-size:14px; color:var(--ink-mid);
+  line-height:1.65;
+}
+.line-exp-text code { font-family:var(--mono); font-size:12px; background:var(--paper-2); color:var(--teal); padding:1px 5px; border-radius:3px; }
+.line-exp-text .r-eq { font-size:12px; color:var(--amber); font-family:var(--mono); background:var(--amber-dim); padding:1px 5px; border-radius:3px; }
+
+/* ── OUTCOMES ── */
+.outcomes-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(195px,1fr)); gap:10px; margin:1.5rem 0; }
+.oc { background:white; border:1px solid var(--border); border-radius:10px; padding:1rem 1.1rem; }
+.oc-icon { font-size:1.3rem; margin-bottom:6px; }
+.oc-title { font-family:var(--sans); font-size:13px; font-weight:600; color:var(--ink); margin-bottom:3px; }
+.oc-body { font-size:13px; color:var(--ink-soft); line-height:1.5; font-family:var(--serif); }
+
+/* ── COMPARE TABLE ── */
+.cmp-wrap { overflow-x:auto; margin:1.5rem 0; }
+.cmp { width:100%; border-collapse:collapse; font-size:13.5px; }
+.cmp th { font-family:var(--sans); font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; padding:9px 14px; border-bottom:2px solid var(--border); }
+.cmp th.r-col { background:#fff5f5; color:#991b1b; }
+.cmp th.w-col { background:var(--paper-2); color:var(--ink-soft); font-style:italic; }
+.cmp th.p-col { background:var(--teal-dim); color:var(--teal); }
+.cmp td { padding:8px 14px; border-bottom:1px solid var(--paper-3); vertical-align:top; line-height:1.5; }
+.cmp td.r-val { font-family:var(--mono); font-size:12px; color:#991b1b; }
+.cmp td.w-val { font-family:var(--serif); font-size:13px; color:var(--ink-soft); }
+.cmp td.p-val { font-family:var(--mono); font-size:12px; color:var(--teal); }
+.cmp tr:hover td { background:var(--paper-2); }
+
+/* ── STEPS ── */
+.steps { list-style:none; margin:1.5rem 0; }
+.step-item { display:grid; grid-template-columns:36px 1fr; gap:0 14px; margin-bottom:1.4rem; }
+.step-n { width:36px; height:36px; border-radius:50%; background:var(--ink); color:white; font-family:var(--sans); font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+.step-t { font-family:var(--sans); font-size:14.5px; font-weight:600; color:var(--ink); margin-bottom:3px; }
+.step-b { font-size:14px; color:var(--ink-soft); line-height:1.6; font-family:var(--serif); }
+
+/* ── EXERCISE ── */
+.exercise { border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:1.5rem 0; }
+.ex-head { background:var(--ink); padding:11px 18px; display:flex; align-items:center; gap:10px; }
+.ex-num { font-family:var(--mono); font-size:10px; color:#4b5675; letter-spacing:.08em; }
+.ex-title { font-family:var(--sans); font-size:14px; font-weight:600; color:white; }
+.ex-level { margin-left:auto; font-family:var(--mono); font-size:10px; padding:2px 8px; border-radius:99px; }
+.ex-level.beg { background:rgba(10,124,92,.25); color:#6ee7c4; }
+.ex-level.int { background:rgba(30,79,160,.3); color:#93c5fd; }
+.ex-body { padding:1.25rem 1.5rem; }
+.ex-task { font-size:14.5px; color:var(--ink-mid); line-height:1.7; margin-bottom:1rem; font-family:var(--serif); }
+.ex-hint { font-size:13px; background:var(--amber-dim); color:#6b3a0f; border:1px solid #f6d28d; border-radius:6px; padding:8px 12px; font-family:var(--serif); }
+
+/* ── LIBS ── */
+.lib-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(175px,1fr)); gap:10px; margin:1.5rem 0; }
+.lib-card { background:white; border:1px solid var(--border); border-radius:10px; padding:13px 15px; transition:border-color .15s; }
+.lib-card:hover { border-color:var(--teal); }
+.lib-name { font-family:var(--mono); font-size:13.5px; font-weight:500; color:var(--teal); margin-bottom:2px; }
+.lib-inst { font-family:var(--mono); font-size:11px; color:var(--ink-ghost); margin-bottom:6px; }
+.lib-desc { font-size:13px; color:var(--ink-soft); line-height:1.45; font-family:var(--serif); }
+
+/* ── TABS ── */
+.tab-nav { display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:0; }
+.tab-btn { font-family:var(--sans); font-size:12px; font-weight:600; padding:8px 16px; background:transparent; border:none; border-bottom:2px solid transparent; margin-bottom:-2px; cursor:pointer; color:var(--ink-ghost); transition:color .15s; letter-spacing:.02em; }
+.tab-btn.active { color:var(--teal); border-bottom-color:var(--teal); }
+.tab-pane { display:none; padding-top:1rem; }
+.tab-pane.active { display:block; }
+
+/* ── SYNTAX COLOURS ── */
+.kw { color:#ff79c6; }
+.fn { color:#50fa7b; }
+.st { color:#f1fa8c; }
+.nm { color:#bd93f9; }
+.cm { color:#44475a; font-style:italic; }
+.im { color:#8be9fd; }
+.op { color:#ff79c6; }
+
+/* ── NEXT BANNER ── */
+.next-banner { background:var(--ink); border-radius:12px; padding:1.75rem 2rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-top:3rem; }
+.next-lbl { font-family:var(--mono); font-size:10px; color:#4b5675; letter-spacing:.1em; text-transform:uppercase; margin-bottom:4px; }
+.next-title { font-family:var(--sans); font-size:17px; font-weight:700; color:white; letter-spacing:-.01em; }
+.next-btn { font-family:var(--sans); font-size:13px; font-weight:600; background:var(--teal); color:white; padding:10px 20px; border-radius:8px; text-decoration:none; white-space:nowrap; transition:background .15s; }
+.next-btn:hover { background:#0a6a4e; }
+
+@media(max-width:640px){
+  .hero-grid{grid-template-columns:1fr}
+  .hero-meta{flex-direction:row;flex-wrap:wrap;align-items:flex-start}
+  .line-row{grid-template-columns:1fr}
+  .line-code{border-right:none;border-bottom:1px solid var(--paper-3)}
+  .body-wrap{padding:2rem 1.25rem 5rem}
+}
+
+/* phase complete banner */
+.phase-complete{background:linear-gradient(135deg,#0a3d2e 0%,#0e1117 60%);border-radius:16px;padding:2.5rem 2rem;margin-top:3rem;border:1px solid var(--teal);text-align:center}
+.pc-icon{font-size:3rem;margin-bottom:1rem}
+.pc-title{font-family:var(--sans);font-size:1.5rem;font-weight:700;color:white;margin-bottom:.5rem}
+.pc-sub{font-family:var(--serif);font-size:15px;color:#94a3b8;line-height:1.7;max-width:500px;margin:0 auto 1.5rem}
+.pc-badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem}
+.pc-badge{font-family:var(--mono);font-size:11px;padding:4px 12px;border-radius:99px;background:rgba(10,124,92,.25);color:#6ee7c4;border:1px solid rgba(10,124,92,.4)}
+.pc-next-btn{display:inline-block;font-family:var(--sans);font-size:13px;font-weight:700;background:var(--teal);color:white;padding:12px 28px;border-radius:8px;text-decoration:none;letter-spacing:.02em;transition:background .15s}
+.pc-next-btn:hover{background:#0d9e76}
+/* cheatsheet grid */
+.cheat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:1.5rem 0}
+.cheat-card{background:white;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.cheat-head{background:var(--paper-2);padding:8px 14px;font-family:var(--sans);font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border)}
+.cheat-rows{}
+.cheat-row{display:flex;align-items:center;gap:8px;padding:6px 14px;border-bottom:1px solid var(--paper-3);font-size:12.5px}
+.cheat-row:last-child{border-bottom:none}
+.cheat-code{font-family:var(--mono);color:var(--teal);font-size:12px;flex-shrink:0}
+.cheat-desc{color:var(--ink-soft);font-family:var(--serif);font-size:12.5px;line-height:1.4}
+/* kw/fn/etc syntax */
+.kw{color:#ff79c6}.fn{color:#50fa7b}.st{color:#f1fa8c}.nm{color:#bd93f9}.cm{color:#44475a;font-style:italic}.im{color:#8be9fd}.op{color:#ff79c6}
+@media(max-width:640px){
+  .hero-grid{grid-template-columns:1fr}
+  .hero-meta{flex-direction:row;flex-wrap:wrap;align-items:flex-start}
+  .line-row{grid-template-columns:1fr}
+  .line-code{border-right:none;border-bottom:1px solid var(--paper-3)}
+  .body-wrap{padding:2rem 1.25rem 5rem}
+}
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="top-nav">
+  <div style="display:flex;align-items:center;gap:1rem">
+    <div class="nav-brand">PyActuarial</div>
+    <div class="nav-crumb">Phase 0 · Foundations</div>
+  </div>
+  <div class="nav-right">
+    <button class="unit-pill active" onclick="switchUnit('u01',this)">Unit 0.1</button>
+    <button class="unit-pill" onclick="switchUnit('u02',this)">Unit 0.2</button>
+    <button class="unit-pill" onclick="switchUnit('u03',this)">Unit 0.3</button>
+    <button class="unit-pill" onclick="switchUnit('u04',this)">Unit 0.4</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════ UNIT 0.1 ═══ -->
+<div id="u01" class="unit-page active">
+
+<div class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="hero-phase">Unit 0.1 · Phase 0: Foundations</div>
+      <h1 class="hero-title">Python Setup &<br><span>Actuarial Mindset</span></h1>
+      <p class="hero-sub">Get your environment running, understand the R→Python translation, and write your first actuarial notebook — even if you've never touched Python before.</p>
+    </div>
+    <div class="hero-meta">
+      <div class="meta-chip green">No Python needed</div>
+      <div class="meta-chip">~90 min</div>
+      <div class="meta-chip">jupyter · pandas · numpy</div>
+    </div>
+  </div>
+</div>
+
+<div class="body-wrap">
+
+  <!-- OUTCOMES -->
+  <div class="section">
+    <div class="sec-num">Learning Outcomes</div>
+    <div class="sec-title">By the end of this unit you will be able to…</div>
+    <div class="outcomes-grid">
+      <div class="oc"><div class="oc-icon">⚙️</div><div class="oc-title">Set up Python</div><div class="oc-body">Install Python, Jupyter, and the full actuarial toolkit on your machine.</div></div>
+      <div class="oc"><div class="oc-icon">🔄</div><div class="oc-title">Translate R → Python</div><div class="oc-body">Map the R you know — data frames, vectors, summary stats — to Python equivalents.</div></div>
+      <div class="oc"><div class="oc-icon">📊</div><div class="oc-title">Load actuarial data</div><div class="oc-body">Read a CSV of insurance claims and produce a summary analysis.</div></div>
+      <div class="oc"><div class="oc-icon">📓</div><div class="oc-title">Use Jupyter</div><div class="oc-body">Write reproducible notebooks that mix code, results, and written analysis.</div></div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- SECTION 1 -->
+  <div class="section">
+    <div class="sec-num">Section 1</div>
+    <div class="sec-title">Why Python alongside R?</div>
+    <div class="sec-body">
+      <p>You've already learned R in Statistical Computing — so why Python? The honest answer is: <strong>the actuarial industry uses both</strong>, and increasingly leans on Python for data pipelines, machine learning, web applications, and automation.</p>
+      <p>R is a statistician's language — built for data analysis, with elegant plotting and an enormous library of statistical methods. Python is a general-purpose language that has grown very powerful statistical tools on top of a foundation that can also build web apps, connect to databases, and run on servers.</p>
+      <p>As an actuary you will move between both. This course ensures you're fluent in Python without forgetting what you know in R.</p>
+    </div>
+    <div class="callout"><b>The R Bridge:</b> Throughout this course, every concept is mapped from R to Python. You won't be starting from zero — you'll be translating. This is significantly faster than learning from scratch.</div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="section">
+    <div class="sec-num">Section 2</div>
+    <div class="sec-title">Installing Your Environment</div>
+    <div class="sec-body"><p>We use <strong>Anaconda</strong> — a distribution that comes with Python, Jupyter, and most scientific libraries pre-installed. This is the standard setup in actuarial and data science teams.</p></div>
+    <ol class="steps">
+      <li class="step-item"><div class="step-n">1</div><div><div class="step-t">Download Anaconda</div><div class="step-b">Go to <strong>anaconda.com/download</strong> and download the Individual Edition for your OS. It is free. Run the installer with default settings.</div></div></li>
+      <li class="step-item"><div class="step-n">2</div><div><div class="step-t">Open Anaconda Prompt / Terminal</div><div class="step-b">Windows: open "Anaconda Prompt" from the Start menu. Mac/Linux: open Terminal. You'll use this to install packages and launch Jupyter.</div></div></li>
+      <li class="step-item"><div class="step-n">3</div><div><div class="step-t">Create a course environment</div><div class="step-b">An isolated environment keeps your actuarial packages separate from other projects. Run the commands below.</div></div></li>
+    </ol>
+
+    <div class="code-block">
+      <div class="code-top">
+        <div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">bash · terminal</span></div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+<pre class="code-body"><span class="cm"># Create a new environment called 'actuarial' with Python 3.11</span>
+conda create -n actuarial python=3.11
+
+<span class="cm"># Activate it — run this every time you work on this course</span>
+conda activate actuarial
+
+<span class="cm"># Install the core actuarial toolkit in one command</span>
+pip install jupyter numpy pandas scipy matplotlib seaborn statsmodels openpyxl sympy</pre>
+    </div>
+
+    <ol class="steps" start="4">
+      <li class="step-item"><div class="step-n">4</div><div><div class="step-t">Launch Jupyter Notebook</div><div class="step-b">Once packages are installed, start Jupyter from your terminal. A browser window will open automatically.</div></div></li>
+    </ol>
+
+    <div class="code-block">
+      <div class="code-top">
+        <div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">bash · terminal</span></div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+<pre class="code-body"><span class="cm"># Activate the environment first</span>
+conda activate actuarial
+
+<span class="cm"># Launch classic Jupyter Notebook</span>
+jupyter notebook
+
+<span class="cm"># OR use JupyterLab (same concept, more features)</span>
+jupyter lab</pre>
+    </div>
+    <div class="callout amber"><b>Verify it works:</b> In Jupyter, create a new notebook and run <code style="background:#f6d28d;color:#6b3a0f">import pandas as pd; print(pd.__version__)</code>. If you see a version number like <code style="background:#f6d28d;color:#6b3a0f">2.1.0</code>, you're set up correctly.</div>
+  </div>
+
+  <hr class="div">
+
+  <!-- SECTION 3 -->
+  <div class="section">
+    <div class="sec-num">Section 3</div>
+    <div class="sec-title">R → Python Translation Guide</div>
+    <div class="sec-body"><p>Everything you know from R has a Python equivalent. Work through these tables — for anything you recognise, you can immediately use its Python form.</p></div>
+
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="showTab(this,'tb-basics')">Basics</button>
+      <button class="tab-btn" onclick="showTab(this,'tb-data')">Data Structures</button>
+      <button class="tab-btn" onclick="showTab(this,'tb-stats')">Stats & Maths</button>
+      <button class="tab-btn" onclick="showTab(this,'tb-io')">Files & I/O</button>
+    </div>
+
+    <div id="tb-basics" class="tab-pane active">
+      <div class="cmp-wrap"><table class="cmp"><thead><tr><th class="r-col">R</th><th class="w-col">What it does</th><th class="p-col">Python</th></tr></thead><tbody>
+        <tr><td class="r-val">x &lt;- 5</td><td class="w-val">Assign a variable</td><td class="p-val">x = 5</td></tr>
+        <tr><td class="r-val">print(x)</td><td class="w-val">Print to console</td><td class="p-val">print(x)</td></tr>
+        <tr><td class="r-val"># comment</td><td class="w-val">Write a comment</td><td class="p-val"># comment</td></tr>
+        <tr><td class="r-val">if (x > 0) { ... }</td><td class="w-val">Conditional</td><td class="p-val">if x > 0:</td></tr>
+        <tr><td class="r-val">for (i in 1:10) { ... }</td><td class="w-val">For loop</td><td class="p-val">for i in range(1, 11):</td></tr>
+        <tr><td class="r-val">while (x &lt; 10) { ... }</td><td class="w-val">While loop</td><td class="p-val">while x &lt; 10:</td></tr>
+        <tr><td class="r-val">function(x) { x^2 }</td><td class="w-val">Define a function</td><td class="p-val">def sq(x): return x**2</td></tr>
+        <tr><td class="r-val">x^2</td><td class="w-val">Exponentiation</td><td class="p-val">x**2</td></tr>
+        <tr><td class="r-val">TRUE / FALSE</td><td class="w-val">Booleans</td><td class="p-val">True / False</td></tr>
+        <tr><td class="r-val">NA</td><td class="w-val">Missing value</td><td class="p-val">None / np.nan</td></tr>
+        <tr><td class="r-val">library(dplyr)</td><td class="w-val">Load a package</td><td class="p-val">import pandas as pd</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div id="tb-data" class="tab-pane">
+      <div class="cmp-wrap"><table class="cmp"><thead><tr><th class="r-col">R</th><th class="w-col">What it does</th><th class="p-col">Python</th></tr></thead><tbody>
+        <tr><td class="r-val">c(1, 2, 3)</td><td class="w-val">Create a vector</td><td class="p-val">np.array([1, 2, 3])</td></tr>
+        <tr><td class="r-val">list(a=1, b=2)</td><td class="w-val">Named list</td><td class="p-val">{'a': 1, 'b': 2}</td></tr>
+        <tr><td class="r-val">data.frame(...)</td><td class="w-val">Create a data frame</td><td class="p-val">pd.DataFrame({...})</td></tr>
+        <tr><td class="r-val">df$column</td><td class="w-val">Select a column</td><td class="p-val">df['column']</td></tr>
+        <tr><td class="r-val">df[1:5, ]</td><td class="w-val">Slice rows</td><td class="p-val">df.iloc[0:5]</td></tr>
+        <tr><td class="r-val">df[df$x > 0, ]</td><td class="w-val">Filter rows</td><td class="p-val">df[df['x'] > 0]</td></tr>
+        <tr><td class="r-val">nrow(df)</td><td class="w-val">Number of rows</td><td class="p-val">len(df)</td></tr>
+        <tr><td class="r-val">str(df)</td><td class="w-val">Structure / types</td><td class="p-val">df.info()</td></tr>
+        <tr><td class="r-val">summary(df)</td><td class="w-val">Summary statistics</td><td class="p-val">df.describe()</td></tr>
+        <tr><td class="r-val">head(df, 10)</td><td class="w-val">First n rows</td><td class="p-val">df.head(10)</td></tr>
+        <tr><td class="r-val">rbind(df1, df2)</td><td class="w-val">Stack rows</td><td class="p-val">pd.concat([df1, df2])</td></tr>
+        <tr><td class="r-val">merge(df1, df2)</td><td class="w-val">Join by key</td><td class="p-val">pd.merge(df1, df2, on='key')</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div id="tb-stats" class="tab-pane">
+      <div class="cmp-wrap"><table class="cmp"><thead><tr><th class="r-col">R</th><th class="w-col">What it does</th><th class="p-col">Python</th></tr></thead><tbody>
+        <tr><td class="r-val">mean(x)</td><td class="w-val">Arithmetic mean</td><td class="p-val">np.mean(x)</td></tr>
+        <tr><td class="r-val">sd(x)</td><td class="w-val">Standard deviation</td><td class="p-val">np.std(x, ddof=1)</td></tr>
+        <tr><td class="r-val">var(x)</td><td class="w-val">Variance</td><td class="p-val">np.var(x, ddof=1)</td></tr>
+        <tr><td class="r-val">dnorm(x, mu, sd)</td><td class="w-val">Normal PDF</td><td class="p-val">stats.norm.pdf(x, mu, sd)</td></tr>
+        <tr><td class="r-val">pnorm(x, mu, sd)</td><td class="w-val">Normal CDF</td><td class="p-val">stats.norm.cdf(x, mu, sd)</td></tr>
+        <tr><td class="r-val">qnorm(p, mu, sd)</td><td class="w-val">Normal quantile</td><td class="p-val">stats.norm.ppf(p, mu, sd)</td></tr>
+        <tr><td class="r-val">rnorm(n, mu, sd)</td><td class="w-val">Normal random sample</td><td class="p-val">np.random.normal(mu, sd, n)</td></tr>
+        <tr><td class="r-val">lm(y ~ x, data=df)</td><td class="w-val">Linear regression</td><td class="p-val">smf.ols('y ~ x', df).fit()</td></tr>
+        <tr><td class="r-val">t.test(x, y)</td><td class="w-val">Two-sample t-test</td><td class="p-val">stats.ttest_ind(x, y)</td></tr>
+        <tr><td class="r-val">set.seed(42)</td><td class="w-val">Set random seed</td><td class="p-val">np.random.seed(42)</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div id="tb-io" class="tab-pane">
+      <div class="cmp-wrap"><table class="cmp"><thead><tr><th class="r-col">R</th><th class="w-col">What it does</th><th class="p-col">Python</th></tr></thead><tbody>
+        <tr><td class="r-val">read.csv("file.csv")</td><td class="w-val">Read CSV</td><td class="p-val">pd.read_csv("file.csv")</td></tr>
+        <tr><td class="r-val">write.csv(df,"f.csv")</td><td class="w-val">Write CSV</td><td class="p-val">df.to_csv("f.csv", index=False)</td></tr>
+        <tr><td class="r-val">read_excel("file.xlsx")</td><td class="w-val">Read Excel</td><td class="p-val">pd.read_excel("file.xlsx")</td></tr>
+        <tr><td class="r-val">getwd()</td><td class="w-val">Working directory</td><td class="p-val">os.getcwd()</td></tr>
+      </tbody></table></div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- SECTION 4: NOTEBOOK -->
+  <div class="section">
+    <div class="sec-num">Section 4</div>
+    <div class="sec-title">Your First Actuarial Notebook</div>
+    <div class="sec-body">
+      <p>Let's write a real notebook. We'll load a dataset of motor insurance claims, explore it, and produce a grouped summary — exactly the kind of first step you'd take on any actuarial data task.</p>
+      <p>Create a new Jupyter notebook called <code style="background:var(--paper-2);padding:1px 6px;border-radius:3px;font-family:var(--mono);font-size:13px">01_first_actuarial_notebook.ipynb</code> and enter each cell below.</p>
+    </div>
+
+    <!-- CELL 1 -->
+    <div class="code-block">
+      <div class="code-top">
+        <div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 1</span><span class="code-title-text">Import libraries</span></div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+<pre class="code-body"><span class="kw">import</span> <span class="im">numpy</span> <span class="kw">as</span> np
+<span class="kw">import</span> <span class="im">pandas</span> <span class="kw">as</span> pd
+<span class="kw">import</span> <span class="im">matplotlib.pyplot</span> <span class="kw">as</span> plt
+<span class="kw">import</span> <span class="im">seaborn</span> <span class="kw">as</span> sns
+
+%matplotlib inline
+
+<span class="fn">print</span>(<span class="st">"Libraries loaded successfully ✓"</span>)
+<span class="fn">print</span>(<span class="st">f"Pandas version: {pd.__version__}"</span>)
+<span class="fn">print</span>(<span class="st">f"NumPy version:  {np.__version__}"</span>)</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header">
+        <div class="breakdown-header-text">Line-by-line explanation — Cell 1</div>
+        <button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button>
+      </div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">import numpy as np</div><div class="line-exp-text"><strong>Loads NumPy</strong> and gives it the alias <code>np</code>. NumPy is Python's engine for fast numerical operations — think of it as R's built-in vector arithmetic, but as a separate package. The alias means you write <code>np.mean()</code> instead of <code>numpy.mean()</code>. This alias is a universal industry convention. <span class="r-eq">R: library(base) — arithmetic is built-in</span></div></div>
+        <div class="line-row"><div class="line-code">import pandas as pd</div><div class="line-exp-text"><strong>Loads Pandas</strong>, your primary data manipulation tool. This is the Python equivalent of R's <code>data.frame</code> combined with <code>dplyr</code> and <code>tidyr</code>. The alias <code>pd</code> is universally used — every Pandas script in the world starts with this line. <span class="r-eq">R: library(dplyr); library(tidyr)</span></div></div>
+        <div class="line-row"><div class="line-code">import matplotlib.pyplot as plt</div><div class="line-exp-text"><strong>Loads the plotting module</strong> from Matplotlib. <code>pyplot</code> is a sub-module (hence the dot), and <code>plt</code> is the conventional alias. This is R's base <code>plot()</code> function, but much more customisable. You will see <code>plt.show()</code> used to display charts. <span class="r-eq">R: base plot() / ggplot2</span></div></div>
+        <div class="line-row"><div class="line-code">import seaborn as sns</div><div class="line-exp-text"><strong>Loads Seaborn</strong>, a statistical plotting library built on top of Matplotlib. It produces cleaner charts with less code — closer to R's ggplot2 in spirit. The alias <code>sns</code> is standard. <span class="r-eq">R: library(ggplot2)</span></div></div>
+        <div class="line-row"><div class="line-code">%matplotlib inline</div><div class="line-exp-text"><strong>A Jupyter "magic command"</strong> — the <code>%</code> prefix is the signal. It tells Jupyter to display all plots directly inside the notebook, beneath the cell that created them, rather than opening a separate window. This line only works inside Jupyter — not in plain Python scripts. Always include it when plotting in a notebook.</div></div>
+        <div class="line-row"><div class="line-code">print("Libraries loaded ✓")</div><div class="line-exp-text"><strong>Confirms the imports worked.</strong> Python's <code>print()</code> is equivalent to R's <code>cat()</code> or <code>print()</code>. Always add a confirmation line — silent cells leave you wondering whether anything ran. <span class="r-eq">R: cat("Libraries loaded\n")</span></div></div>
+        <div class="line-row"><div class="line-code">print(f"Pandas version: {pd.__version__}")</div><div class="line-exp-text"><strong>An f-string</strong> (formatted string) — the <code>f"..."</code> syntax lets you embed variable values directly inside a string using curly braces <code>{}</code>. So <code>{pd.__version__}</code> inserts the actual installed version number, e.g. <code>2.1.0</code>. The <code>.__version__</code> attribute is available on most Python libraries. <span class="r-eq">R: paste("Pandas version:", pd.__version__)</span></div></div>
+      </div>
+    </div>
+
+    <!-- CELL 2 -->
+    <div class="code-block">
+      <div class="code-top">
+        <div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 2</span><span class="code-title-text">Create a sample claims dataset</span></div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+<pre class="code-body">np.random.<span class="fn">seed</span>(<span class="nm">42</span>)
+n = <span class="nm">200</span>
+
+claims = pd.<span class="fn">DataFrame</span>({
+    <span class="st">'policy_id'</span>:    <span class="fn">range</span>(<span class="nm">1001</span>, <span class="nm">1001</span> + n),
+    <span class="st">'age_band'</span>:     np.random.<span class="fn">choice</span>([<span class="st">'18-25'</span>, <span class="st">'26-35'</span>, <span class="st">'36-50'</span>, <span class="st">'51+'</span>], n,
+                        p=[<span class="nm">0.15</span>, <span class="nm">0.30</span>, <span class="nm">0.35</span>, <span class="nm">0.20</span>]),
+    <span class="st">'vehicle_type'</span>: np.random.<span class="fn">choice</span>([<span class="st">'Saloon'</span>, <span class="st">'SUV'</span>, <span class="st">'Hatchback'</span>], n),
+    <span class="st">'claim_amount'</span>: np.random.<span class="fn">lognormal</span>(mean=<span class="nm">7.5</span>, sigma=<span class="nm">1.2</span>, size=n).<span class="fn">round</span>(<span class="nm">2</span>),
+    <span class="st">'at_fault'</span>:     np.random.<span class="fn">choice</span>([<span class="st">'Yes'</span>, <span class="st">'No'</span>], n, p=[<span class="nm">0.4</span>, <span class="nm">0.6</span>]),
+    <span class="st">'claim_year'</span>:   np.random.<span class="fn">choice</span>([<span class="nm">2021</span>, <span class="nm">2022</span>, <span class="nm">2023</span>], n)
+})
+
+missing_idx = np.random.<span class="fn">choice</span>(claims.index, <span class="nm">12</span>, replace=<span class="kw">False</span>)
+claims.<span class="fn">loc</span>[missing_idx, <span class="st">'claim_amount'</span>] = np.nan
+
+<span class="fn">print</span>(<span class="st">f"Dataset created: {len(claims)} rows, {claims.shape[1]} columns"</span>)</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header">
+        <div class="breakdown-header-text">Line-by-line explanation — Cell 2</div>
+        <button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button>
+      </div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">np.random.seed(42)</div><div class="line-exp-text"><strong>Sets the random number seed.</strong> Any number works — 42 is just a convention. This guarantees that every time you run this cell, NumPy's random functions produce the exact same sequence of numbers. Without it, your dataset would be different every run, making analysis unreproducible. <span class="r-eq">R: set.seed(42)</span></div></div>
+        <div class="line-row"><div class="line-code">n = 200</div><div class="line-exp-text"><strong>Stores the dataset size</strong> in a variable. Using a variable instead of writing 200 everywhere means you can change the size in one place only — good coding practice. Avoid "magic numbers" scattered through your code.</div></div>
+        <div class="line-row"><div class="line-code">claims = pd.DataFrame({...})</div><div class="line-exp-text"><strong>Creates a DataFrame from a Python dictionary.</strong> Each key becomes a column name, each value becomes that column's data. The entire dictionary is the argument to <code>pd.DataFrame()</code>. <span class="r-eq">R: data.frame(col1 = ..., col2 = ...)</span></div></div>
+        <div class="line-row"><div class="line-code">range(1001, 1001 + n)</div><div class="line-exp-text"><strong>Generates integers</strong> 1001, 1002, … 1200 as unique policy IDs. <code>range(start, stop)</code> is exclusive of the stop value — so <code>range(1001, 1201)</code> gives 200 values. <span class="r-eq">R: seq(1001, 1200)</span></div></div>
+        <div class="line-row"><div class="line-code">np.random.choice([...], n, p=[...])</div><div class="line-exp-text"><strong>Randomly picks n values</strong> from the list with weighted probabilities given by <code>p</code>. The probabilities must sum to 1.0. Here 15% of policyholders are aged 18–25, 30% aged 26–35, and so on — a realistic portfolio distribution. <span class="r-eq">R: sample(c('18-25',...), n, replace=TRUE, prob=c(0.15,...))</span></div></div>
+        <div class="line-row"><div class="line-code">np.random.choice([...], n) &nbsp;# no p</div><div class="line-exp-text"><strong>Same function, no p argument</strong> — each option is equally likely. When <code>p</code> is omitted, NumPy assumes a uniform distribution across the choices.</div></div>
+        <div class="line-row"><div class="line-code">np.random.lognormal(mean=7.5, sigma=1.2, size=n).round(2)</div><div class="line-exp-text"><strong>Generates n log-normally distributed values.</strong> The log-normal is fundamental in actuarial science — it models claim severities because it is always positive and right-skewed (most claims moderate, a few very large). <code>mean</code> and <code>sigma</code> are the parameters of the <em>underlying</em> normal distribution. The chained <code>.round(2)</code> rounds every value to 2 decimal places. <span class="r-eq">R: rlnorm(n, meanlog=7.5, sdlog=1.2)</span></div></div>
+        <div class="line-row"><div class="line-code">np.random.choice(claims.index, 12, replace=False)</div><div class="line-exp-text"><strong>Selects 12 row indices without replacement</strong> — so no row is chosen twice. <code>claims.index</code> is the list of row labels (0 to 199). We use these to inject missing values, simulating real-world data quality issues.</div></div>
+        <div class="line-row"><div class="line-code">claims.loc[missing_idx, 'claim_amount'] = np.nan</div><div class="line-exp-text"><strong><code>.loc[rows, column]</code></strong> selects specific cells by label and assigns <code>np.nan</code> (Not a Number) — Python's missing value for numerics. <code>np.nan</code> is equivalent to R's <code>NA</code>. This is how you write to specific cells in a DataFrame. <span class="r-eq">R: claims$claim_amount[missing_idx] &lt;- NA</span></div></div>
+        <div class="line-row"><div class="line-code">f"... {len(claims)} ... {claims.shape[1]} ..."</div><div class="line-exp-text"><strong><code>len(claims)</code></strong> returns the number of rows (200). <strong><code>claims.shape</code></strong> is a tuple of (rows, columns), so <code>.shape[1]</code> gives the column count. Printing this confirmation is a good habit — always verify your dataset was built as expected before analysis.</div></div>
+      </div>
+    </div>
+
+    <!-- CELL 3 -->
+    <div class="code-block">
+      <div class="code-top">
+        <div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 3</span><span class="code-title-text">Explore the data</span></div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+<pre class="code-body"><span class="fn">print</span>(<span class="st">"=== First 5 rows ==="</span>)
+<span class="fn">display</span>(claims.<span class="fn">head</span>(<span class="nm">5</span>))
+
+<span class="fn">print</span>(<span class="st">"\n=== Data types and non-null counts ==="</span>)
+claims.<span class="fn">info</span>()
+
+<span class="fn">print</span>(<span class="st">"\n=== Summary statistics ==="</span>)
+<span class="fn">display</span>(claims.<span class="fn">describe</span>().<span class="fn">round</span>(<span class="nm">2</span>))
+
+<span class="fn">print</span>(<span class="st">"\n=== Missing values per column ==="</span>)
+<span class="fn">print</span>(claims.<span class="fn">isnull</span>().<span class="fn">sum</span>())</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header">
+        <div class="breakdown-header-text">Line-by-line explanation — Cell 3</div>
+        <button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button>
+      </div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">display(claims.head(5))</div><div class="line-exp-text"><strong><code>.head(5)</code></strong> returns the first 5 rows, just like R's <code>head(claims, 5)</code>. We wrap it in <code>display()</code> rather than <code>print()</code> because in Jupyter, <code>display()</code> renders DataFrames as a formatted HTML table — much more readable than plain text. <span class="r-eq">R: head(claims, 5)</span></div></div>
+        <div class="line-row"><div class="line-code">claims.info()</div><div class="line-exp-text"><strong>Prints a concise diagnostic summary</strong>: column names, data types (<code>int64</code>, <code>float64</code>, <code>object</code> for strings), and how many non-null values each column has. This immediately reveals which columns have missing data. <span class="r-eq">R: str(claims)</span></div></div>
+        <div class="line-row"><div class="line-code">claims.describe().round(2)</div><div class="line-exp-text"><strong>Computes descriptive statistics</strong> for all numeric columns: count, mean, standard deviation, min, Q1 (25th percentile), median (Q2, 50th percentile), Q3 (75th percentile), and max. The chained <code>.round(2)</code> formats the output to 2 decimal places. <span class="r-eq">R: summary(claims)</span></div></div>
+        <div class="line-row"><div class="line-code">claims.isnull().sum()</div><div class="line-exp-text"><strong>A two-step chain.</strong> First, <code>.isnull()</code> returns a same-shaped DataFrame of <code>True</code>/<code>False</code> — <code>True</code> where a value is missing. Then <code>.sum()</code> adds up the <code>True</code> values per column (Python treats <code>True</code> as 1, <code>False</code> as 0). The result is the missing-value count per column — you should see 12 in <code>claim_amount</code>. <span class="r-eq">R: colSums(is.na(claims))</span></div></div>
+        <div class="line-row"><div class="line-code">"\n=== ... ==="</div><div class="line-exp-text"><strong><code>\n</code></strong> inside a string is a newline character — it adds a blank line before the section header in the output, creating visual separation between blocks. A small touch that makes notebook output much easier to read.</div></div>
+      </div>
+    </div>
+
+    <!-- CELL 4 -->
+    <div class="code-block">
+      <div class="code-top">
+        <div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 4</span><span class="code-title-text">Clean and group — actuarial summary</span></div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+<pre class="code-body">df_clean = claims.<span class="fn">dropna</span>(subset=[<span class="st">'claim_amount'</span>]).<span class="fn">copy</span>()
+
+summary = (df_clean
+    .<span class="fn">groupby</span>(<span class="st">'age_band'</span>)[<span class="st">'claim_amount'</span>]
+    .<span class="fn">agg</span>(
+        count=<span class="st">'count'</span>,
+        mean_claim=<span class="st">'mean'</span>,
+        median_claim=<span class="st">'median'</span>,
+        total_exposure=<span class="st">'sum'</span>,
+        std_dev=<span class="st">'std'</span>
+    )
+    .<span class="fn">round</span>(<span class="nm">2</span>)
+    .<span class="fn">reset_index</span>()
+    .<span class="fn">sort_values</span>(<span class="st">'mean_claim'</span>, ascending=<span class="kw">False</span>)
+)
+
+<span class="fn">print</span>(<span class="st">"Claims Summary by Age Band:"</span>)
+<span class="fn">display</span>(summary)</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header">
+        <div class="breakdown-header-text">Line-by-line explanation — Cell 4</div>
+        <button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button>
+      </div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">claims.dropna(subset=['claim_amount']).copy()</div><div class="line-exp-text"><strong><code>.dropna(subset=[...])</code></strong> removes rows where <code>claim_amount</code> is missing. The <code>subset</code> argument restricts the check to that column only — rows with missing values in other columns are kept. The chained <code>.copy()</code> creates an independent copy — without it, <code>df_clean</code> would be a view of <code>claims</code>, and edits to one might affect the other. Always <code>.copy()</code> when creating a cleaned subset. <span class="r-eq">R: df_clean &lt;- claims[!is.na(claims$claim_amount), ]</span></div></div>
+        <div class="line-row"><div class="line-code">(df_clean ... )</div><div class="line-exp-text"><strong>Outer parentheses</strong> allow the method chain to span multiple lines. Python treats everything inside matching parentheses as one expression — so you can break after each <code>.</code> for readability. This is the idiomatic way to write long Pandas chains. <span class="r-eq">R: the pipe operator %&gt;% serves the same purpose</span></div></div>
+        <div class="line-row"><div class="line-code">.groupby('age_band')['claim_amount']</div><div class="line-exp-text"><strong>Groups the DataFrame</strong> by unique values in <code>age_band</code>, then selects only the <code>claim_amount</code> column to aggregate. This is identical to dplyr's <code>group_by(age_band)</code> followed by selecting a variable. <span class="r-eq">R: df_clean %&gt;% group_by(age_band)</span></div></div>
+        <div class="line-row"><div class="line-code">.agg(count='count', mean_claim='mean', ...)</div><div class="line-exp-text"><strong>Applies multiple aggregations at once</strong> with custom output names. The format is <code>new_column_name='aggregation_function'</code>. This creates one row per age band with all five statistics as columns. Named aggregations keep output readable — not just <code>claim_amount_mean</code>. <span class="r-eq">R: summarise(count=n(), mean_claim=mean(claim_amount), ...)</span></div></div>
+        <div class="line-row"><div class="line-code">.reset_index()</div><div class="line-exp-text"><strong>Moves the group key back to a regular column.</strong> After a <code>groupby()</code>, the grouping column (<code>age_band</code>) becomes the DataFrame's index rather than a column. <code>reset_index()</code> converts it back so the table displays correctly. This step trips up many beginners — remember it every time you groupby.</div></div>
+        <div class="line-row"><div class="line-code">.sort_values('mean_claim', ascending=False)</div><div class="line-exp-text"><strong>Sorts rows by <code>mean_claim</code> descending</strong> (highest first). <code>ascending=False</code> means largest values appear at the top — quickly showing which age band has the most costly claims. <span class="r-eq">R: arrange(desc(mean_claim))</span></div></div>
+      </div>
+    </div>
+
+    <!-- CELL 5 -->
+    <div class="code-block">
+      <div class="code-top">
+        <div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 5</span><span class="code-title-text">Visualise the claim distribution</span></div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+<pre class="code-body">fig, axes = plt.<span class="fn">subplots</span>(<span class="nm">1</span>, <span class="nm">2</span>, figsize=(<span class="nm">12</span>, <span class="nm">4</span>))
+
+axes[<span class="nm">0</span>].<span class="fn">hist</span>(df_clean[<span class="st">'claim_amount'</span>], bins=<span class="nm">30</span>, color=<span class="st">'#1d9e75'</span>, edgecolor=<span class="st">'white'</span>)
+axes[<span class="nm">0</span>].<span class="fn">set_title</span>(<span class="st">'Claim Amount Distribution'</span>)
+axes[<span class="nm">0</span>].<span class="fn">set_xlabel</span>(<span class="st">'Claim Amount ($)'</span>)
+axes[<span class="nm">0</span>].<span class="fn">set_ylabel</span>(<span class="st">'Frequency'</span>)
+
+age_order   = [<span class="st">'18-25'</span>, <span class="st">'26-35'</span>, <span class="st">'36-50'</span>, <span class="st">'51+'</span>]
+mean_claims = df_clean.<span class="fn">groupby</span>(<span class="st">'age_band'</span>)[<span class="st">'claim_amount'</span>].<span class="fn">mean</span>().<span class="fn">reindex</span>(age_order)
+axes[<span class="nm">1</span>].<span class="fn">bar</span>(mean_claims.index, mean_claims.values, color=<span class="st">'#378add'</span>, edgecolor=<span class="st">'white'</span>)
+axes[<span class="nm">1</span>].<span class="fn">set_title</span>(<span class="st">'Mean Claim by Age Band'</span>)
+axes[<span class="nm">1</span>].<span class="fn">set_xlabel</span>(<span class="st">'Age Band'</span>)
+axes[<span class="nm">1</span>].<span class="fn">set_ylabel</span>(<span class="st">'Mean Claim ($)'</span>)
+
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()
+
+<span class="fn">print</span>(<span class="st">"\nClaim amounts follow a log-normal distribution — typical for"</span>)
+<span class="fn">print</span>(<span class="st">"motor insurance. Most claims are moderate, a few are very large."</span>)</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header">
+        <div class="breakdown-header-text">Line-by-line explanation — Cell 5</div>
+        <button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button>
+      </div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">fig, axes = plt.subplots(1, 2, figsize=(12, 4))</div><div class="line-exp-text"><strong>Creates a figure with two side-by-side subplots.</strong> <code>1, 2</code> means 1 row and 2 columns of plots. Returns two objects: <code>fig</code> (the canvas) and <code>axes</code> (an array of the two plot areas). <code>figsize=(12, 4)</code> sets width 12 inches, height 4 inches. <span class="r-eq">R: par(mfrow=c(1,2)) or patchwork library</span></div></div>
+        <div class="line-row"><div class="line-code">axes[0].hist(..., bins=30, color='#1d9e75', edgecolor='white')</div><div class="line-exp-text"><strong>Draws a histogram</strong> on the left subplot (<code>axes[0]</code>, zero-indexed). <code>bins=30</code> divides the range into 30 equal-width buckets. <code>color</code> sets the bar fill (hex code), <code>edgecolor='white'</code> draws white borders between bars for visual clarity. <span class="r-eq">R: ggplot(df, aes(x=claim_amount)) + geom_histogram(bins=30)</span></div></div>
+        <div class="line-row"><div class="line-code">axes[0].set_title / set_xlabel / set_ylabel</div><div class="line-exp-text"><strong>Adds labels</strong> to the left subplot. In Matplotlib you set chart text explicitly on each axis object — unlike ggplot2's <code>+ labs()</code>. Always label your axes in actuarial work — an unlabelled chart is not professional output. <span class="r-eq">R: + labs(title=..., x=..., y=...)</span></div></div>
+        <div class="line-row"><div class="line-code">age_order = [...]</div><div class="line-exp-text"><strong>Defines the correct display order</strong> for age bands. Without this, Matplotlib might sort alphabetically or arbitrarily. For labels that have a natural order (young→old, low→high), always define it explicitly — never rely on the default.</div></div>
+        <div class="line-row"><div class="line-code">.groupby('age_band')['claim_amount'].mean().reindex(age_order)</div><div class="line-exp-text"><strong>Computes mean claim per age band</strong>, then <code>.reindex(age_order)</code> reorders the result to match our defined list. Without <code>.reindex()</code>, bars might appear in an unintended order. The result is a Pandas Series with age bands as the index and mean amounts as values.</div></div>
+        <div class="line-row"><div class="line-code">axes[1].bar(mean_claims.index, mean_claims.values, ...)</div><div class="line-exp-text"><strong>Draws a bar chart</strong> on the right subplot. First argument is x-axis labels (<code>mean_claims.index</code> — age bands), second is bar heights (<code>mean_claims.values</code> — the numeric array). In Pandas, <code>.index</code> gives row labels and <code>.values</code> gives the raw array. <span class="r-eq">R: geom_bar(stat='identity')</span></div></div>
+        <div class="line-row"><div class="line-code">plt.tight_layout()</div><div class="line-exp-text"><strong>Automatically adjusts spacing</strong> between subplots so titles and labels don't overlap. Always call this before <code>plt.show()</code> when you have multiple subplots — without it, long axis labels frequently bleed into adjacent charts.</div></div>
+        <div class="line-row"><div class="line-code">plt.show()</div><div class="line-exp-text"><strong>Renders and displays the figure.</strong> With <code>%matplotlib inline</code> set, charts appear automatically after a cell runs — but calling <code>plt.show()</code> explicitly also clears the figure from memory, preventing charts from bleeding into subsequent plots. Always include it.</div></div>
+      </div>
+    </div>
+
+    <div class="callout"><b>Why log-normal?</b> We generated claims from a log-normal distribution — not arbitrarily. In Probability Theory you'll study why insurance claim severities are well-modelled by log-normal, Gamma, and Pareto distributions. Unit 1.4 covers this in depth with real data.</div>
+  </div>
+
+  <hr class="div">
+
+  <!-- EXERCISES 0.1 -->
+  <div class="section">
+    <div class="sec-num">Practice Exercises</div>
+    <div class="sec-title">Unit 0.1 — Check Your Understanding</div>
+
+    <div class="exercise">
+      <div class="ex-head"><span class="ex-num">EX 0.1.1</span><span class="ex-title">First DataFrame from Scratch</span><span class="ex-level beg">beginner</span></div>
+      <div class="ex-body">
+        <div class="ex-task">Create a Pandas DataFrame representing 5 insurance policies. Include columns: <code>policy_id</code> (P001–P005), <code>sum_insured</code> (realistic USD values), <code>annual_premium</code>, and <code>policy_type</code> ("Life", "Motor", or "Property"). Print the DataFrame's shape and call <code>.describe()</code> on it.</div>
+        <div class="ex-hint">💡 Hint: Start with a dictionary where each key is a column name and each value is a list. Pass it to <code>pd.DataFrame()</code>.</div>
+      </div>
+    </div>
+
+    <div class="exercise">
+      <div class="ex-head"><span class="ex-num">EX 0.1.2</span><span class="ex-title">R Translation Challenge</span><span class="ex-level beg">beginner</span></div>
+      <div class="ex-body">
+        <div class="ex-task">Translate the R code below into Python. Produce identical output using Pandas and NumPy. Test yourself before looking at the translation table.</div>
+        <div class="code-block" style="margin:12px 0 0">
+          <div class="code-top"><div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">R code to translate</span></div></div>
+<pre class="code-body" style="font-size:12.5px">claims_r &lt;- data.frame(
+  year   = c(2021, 2022, 2022, 2023, 2023, 2023),
+  amount = c(1200, 3400, 890, 2100, 4500, 670)
+)
+filtered &lt;- claims_r[claims_r$amount &gt; 1000, ]
+by_year  &lt;- aggregate(amount ~ year, data=filtered, FUN=mean)
+print(by_year)</pre>
+        </div>
+        <div class="ex-hint" style="margin-top:10px">💡 Hint: Use <code>pd.DataFrame()</code>, boolean indexing <code>df[df['col'] > value]</code>, and <code>.groupby().mean()</code>.</div>
+      </div>
+    </div>
+
+    <div class="exercise">
+      <div class="ex-head"><span class="ex-num">EX 0.1.3</span><span class="ex-title">Load and Clean a Real Dataset</span><span class="ex-level int">intermediate</span></div>
+      <div class="ex-body">
+        <div class="ex-task">Download the public French Motor Third-Party Liability dataset (OpenML ID 41214). Load it into Pandas, check for missing values, remove rows with null <code>ClaimAmount</code>, then produce a grouped summary showing mean <code>ClaimAmount</code> by <code>VehBrand</code>, sorted descending. Save the cleaned dataset to a new CSV.</div>
+        <div class="code-block" style="margin:12px 0 0">
+          <div class="code-top"><div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">starter code</span></div></div>
+<pre class="code-body" style="font-size:12.5px"><span class="cm"># pip install openml  (run in terminal first)</span>
+<span class="kw">import</span> <span class="im">openml</span>
+dataset = openml.datasets.<span class="fn">get_dataset</span>(<span class="nm">41214</span>)
+X, y, _, _ = dataset.<span class="fn">get_data</span>(dataset_format=<span class="st">"dataframe"</span>)
+<span class="cm"># X is your DataFrame — explore from here</span></pre>
+        </div>
+        <div class="ex-hint" style="margin-top:10px">💡 This real insurance dataset reappears in Units 1.4, 1.5, and 2.1 — build familiarity with it now.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="next-banner">
+    <div><div class="next-lbl">Up next</div><div class="next-title">Unit 0.2 — Python Core: Data Types & Control Flow</div></div>
+    <button class="next-btn" onclick="switchUnit('u02', document.querySelectorAll('.unit-pill')[1])">Next Unit →</button>
+  </div>
+
+</div><!-- /body-wrap -->
+</div><!-- /unit 0.1 -->
+
+
+<!-- ═══════════════════════════════════════════════ UNIT 0.2 ═══ -->
+<div id="u02" class="unit-page">
+
+<div class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="hero-phase">Unit 0.2 · Phase 0: Foundations</div>
+      <h1 class="hero-title">Python Core:<br><span>Data Types & Control Flow</span></h1>
+      <p class="hero-sub">Master Python's fundamental building blocks — variables, collections, loops, and functions — through actuarial examples you'll recognise from your coursework.</p>
+    </div>
+    <div class="hero-meta">
+      <div class="meta-chip green">Builds on Unit 0.1</div>
+      <div class="meta-chip">~75 min</div>
+      <div class="meta-chip">pure Python</div>
+    </div>
+  </div>
+</div>
+
+<div class="body-wrap">
+
+  <div class="section">
+    <div class="sec-num">Learning Outcomes</div>
+    <div class="sec-title">By the end of this unit you will be able to…</div>
+    <div class="outcomes-grid">
+      <div class="oc"><div class="oc-icon">🧱</div><div class="oc-title">Use all core data types</div><div class="oc-body">Work confidently with integers, floats, strings, booleans, lists, tuples, dictionaries, and sets.</div></div>
+      <div class="oc"><div class="oc-icon">🔁</div><div class="oc-title">Control program flow</div><div class="oc-body">Write clean conditional logic and loops — including list comprehensions — with actuarial examples.</div></div>
+      <div class="oc"><div class="oc-icon">🔧</div><div class="oc-title">Write reusable functions</div><div class="oc-body">Define functions with arguments, return values, and docstrings for actuarial calculations.</div></div>
+      <div class="oc"><div class="oc-icon">🛡️</div><div class="oc-title">Handle errors</div><div class="oc-body">Use try/except to write robust code that doesn't crash on bad input data.</div></div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- SECTION 1: DATA TYPES -->
+  <div class="section">
+    <div class="sec-num">Section 1</div>
+    <div class="sec-title">Python's Core Data Types</div>
+    <div class="sec-body">
+      <p>Every value in Python has a type. Understanding types is essential for actuarial work — the wrong type causes silent errors (a premium stored as a string won't add correctly). Python has fewer data types than R but they behave very predictably.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-top">
+        <div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 1</span><span class="code-title-text">Scalar types — int, float, str, bool</span></div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+<pre class="code-body"><span class="cm"># --- Integers: whole numbers ---</span>
+policy_count    = <span class="nm">1500</span>
+claim_year      = <span class="nm">2024</span>
+<span class="fn">print</span>(<span class="fn">type</span>(policy_count))          <span class="cm"># &lt;class 'int'&gt;</span>
+
+<span class="cm"># --- Floats: decimal numbers ---</span>
+annual_premium  = <span class="nm">4320.50</span>
+loss_ratio      = <span class="nm">0.73</span>
+interest_rate   = <span class="nm">0.085</span>
+<span class="fn">print</span>(<span class="fn">type</span>(annual_premium))         <span class="cm"># &lt;class 'float'&gt;</span>
+
+<span class="cm"># --- Strings: text ---</span>
+policy_id       = <span class="st">"POL-2024-00182"</span>
+insurer_name    = <span class="st">'Old Mutual Life'</span>   <span class="cm"># single or double quotes both work</span>
+<span class="fn">print</span>(<span class="fn">type</span>(policy_id))             <span class="cm"># &lt;class 'str'&gt;</span>
+
+<span class="cm"># --- Booleans: True/False ---</span>
+is_at_fault     = <span class="kw">True</span>
+has_no_claims   = <span class="kw">False</span>
+<span class="fn">print</span>(<span class="fn">type</span>(is_at_fault))           <span class="cm"># &lt;class 'bool'&gt;</span>
+
+<span class="cm"># --- Check types and do arithmetic ---</span>
+<span class="fn">print</span>(<span class="st">f"Total exposure: {policy_count * annual_premium:,.2f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Loss ratio %:   {loss_ratio * 100:.1f}%"</span>)</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header">
+        <div class="breakdown-header-text">Line-by-line explanation — Cell 1</div>
+        <button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button>
+      </div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">policy_count = 1500</div><div class="line-exp-text"><strong>Integer assignment.</strong> Python automatically infers the type — you never declare <code>int x = 1500</code> as you would in Java or C. Integers have no decimal point. Use them for counts (policies, claims, years). <span class="r-eq">R: policy_count &lt;- 1500L (or just 1500)</span></div></div>
+        <div class="line-row"><div class="line-code">annual_premium = 4320.50</div><div class="line-exp-text"><strong>Float (floating-point decimal).</strong> Any number with a decimal point is a float. Premiums, rates, amounts — almost all actuarial numeric values are floats. Python floats are 64-bit doubles, same as R's default numeric type. <span class="r-eq">R: annual_premium &lt;- 4320.50</span></div></div>
+        <div class="line-row"><div class="line-code">print(type(policy_count))</div><div class="line-exp-text"><strong><code>type()</code></strong> returns the data type of any variable. The output <code>&lt;class 'int'&gt;</code> confirms it's an integer. This is your debugging tool — when a calculation gives unexpected results, check the types of your variables first. <span class="r-eq">R: class(policy_count)</span></div></div>
+        <div class="line-row"><div class="line-code">policy_id = "POL-2024-00182"</div><div class="line-exp-text"><strong>String (text).</strong> Strings are sequences of characters enclosed in single or double quotes — both work. Use strings for IDs, names, categories. Note: <code>"1500"</code> is a string, not a number — you cannot do maths with it until you convert it with <code>int()</code> or <code>float()</code>. <span class="r-eq">R: policy_id &lt;- "POL-2024-00182"</span></div></div>
+        <div class="line-row"><div class="line-code">is_at_fault = True</div><div class="line-exp-text"><strong>Boolean.</strong> Exactly two values: <code>True</code> or <code>False</code> — capitalised. Booleans are the result of comparisons (<code>x > 0</code> returns <code>True</code> or <code>False</code>) and are used in conditionals. Note: <code>True == 1</code> and <code>False == 0</code> in Python arithmetic. <span class="r-eq">R: TRUE / FALSE</span></div></div>
+        <div class="line-row"><div class="line-code">f"Total exposure: {policy_count * annual_premium:,.2f}"</div><div class="line-exp-text"><strong>F-string with format specifier.</strong> Inside <code>{}</code> you can include a colon followed by a format code: <code>,.2f</code> means "use comma thousands separators and 2 decimal places". So 6,480,750 would display as <code>6,480,750.00</code>. <code>:.1f</code> means 1 decimal place. Format codes are very useful for financial outputs.</div></div>
+      </div>
+    </div>
+
+    <!-- COLLECTIONS -->
+    <div class="code-block">
+      <div class="code-top">
+        <div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 2</span><span class="code-title-text">Collection types — list, tuple, dict, set</span></div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+<pre class="code-body"><span class="cm"># --- List: ordered, mutable (changeable) ---</span>
+premiums        = [<span class="nm">1200.00</span>, <span class="nm">3450.00</span>, <span class="nm">875.50</span>, <span class="nm">2100.00</span>]
+policy_types    = [<span class="st">'Life'</span>, <span class="st">'Motor'</span>, <span class="st">'Motor'</span>, <span class="st">'Property'</span>]
+premiums.<span class="fn">append</span>(<span class="nm">1550.00</span>)           <span class="cm"># add an item</span>
+<span class="fn">print</span>(<span class="st">f"Premiums: {premiums}"</span>)
+<span class="fn">print</span>(<span class="st">f"First:    {premiums[0]}"</span>)    <span class="cm"># index from 0</span>
+<span class="fn">print</span>(<span class="st">f"Last:     {premiums[-1]}"</span>)   <span class="cm"># -1 = last item</span>
+
+<span class="cm"># --- Tuple: ordered, immutable (cannot change after creation) ---</span>
+age_bands       = (<span class="st">'18-25'</span>, <span class="st">'26-35'</span>, <span class="st">'36-50'</span>, <span class="st">'51+'</span>)
+risk_levels     = (<span class="st">'Low'</span>, <span class="st">'Medium'</span>, <span class="st">'High'</span>)
+<span class="fn">print</span>(<span class="st">f"Age bands: {age_bands}"</span>)
+
+<span class="cm"># --- Dictionary: key-value pairs (like R's named list) ---</span>
+policy = {
+    <span class="st">'id'</span>:           <span class="st">'POL-001'</span>,
+    <span class="st">'premium'</span>:      <span class="nm">2400.00</span>,
+    <span class="st">'type'</span>:         <span class="st">'Motor'</span>,
+    <span class="st">'claim_free'</span>:   <span class="kw">True</span>,
+    <span class="st">'years_held'</span>:   <span class="nm">5</span>
+}
+<span class="fn">print</span>(<span class="st">f"Policy ID:  {policy['id']}"</span>)
+<span class="fn">print</span>(<span class="st">f"Premium:    {policy['premium']:,.2f}"</span>)
+policy[<span class="st">'no_claims_discount'</span>] = <span class="nm">0.30</span>  <span class="cm"># add a new key</span>
+
+<span class="cm"># --- Set: unique values only, unordered ---</span>
+all_types       = [<span class="st">'Motor'</span>, <span class="st">'Life'</span>, <span class="st">'Motor'</span>, <span class="st">'Property'</span>, <span class="st">'Life'</span>, <span class="st">'Motor'</span>]
+unique_types    = <span class="fn">set</span>(all_types)
+<span class="fn">print</span>(<span class="st">f"Unique policy types: {unique_types}"</span>)  <span class="cm"># {'Motor', 'Life', 'Property'}</span></pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header">
+        <div class="breakdown-header-text">Line-by-line explanation — Cell 2</div>
+        <button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button>
+      </div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">premiums = [1200.00, 3450.00, ...]</div><div class="line-exp-text"><strong>List — the most used collection.</strong> Square brackets, comma-separated values. A list is ordered (items stay in the order you put them), mutable (you can add, remove, change items), and can hold mixed types (though mixing is generally bad practice). <span class="r-eq">R: premiums &lt;- c(1200.00, 3450.00, ...)</span></div></div>
+        <div class="line-row"><div class="line-code">premiums.append(1550.00)</div><div class="line-exp-text"><strong>Adds one item to the end of the list.</strong> This modifies the list in-place — no need to reassign. <code>.append()</code> is the standard way to grow a list one item at a time. <span class="r-eq">R: premiums &lt;- c(premiums, 1550.00)</span></div></div>
+        <div class="line-row"><div class="line-code">premiums[0] &nbsp;&nbsp;premiums[-1]</div><div class="line-exp-text"><strong>Indexing is zero-based in Python</strong> — the first item is at index 0, not 1. This is the most common adjustment from R (where indexing starts at 1). <code>premiums[-1]</code> is a shortcut for the last element — negative indices count from the end. <span class="r-eq">R: premiums[1] for first, premiums[length(premiums)] for last</span></div></div>
+        <div class="line-row"><div class="line-code">age_bands = ('18-25', '26-35', ...)</div><div class="line-exp-text"><strong>Tuple — immutable list.</strong> Round brackets instead of square. Once created, a tuple cannot be changed — no appending, removing, or replacing items. Use tuples for fixed reference data that should never change: age band labels, risk category names, regulatory thresholds. Immutability is a safety feature. <span class="r-eq">R: no direct equivalent — use a locked vector</span></div></div>
+        <div class="line-row"><div class="line-code">policy = {'id': 'POL-001', 'premium': 2400.00, ...}</div><div class="line-exp-text"><strong>Dictionary — key-value store.</strong> Curly braces with <code>key: value</code> pairs. Keys must be unique strings (or numbers). This is R's named list. Dictionaries are ideal for representing one record (one policy, one claim) with named attributes. <span class="r-eq">R: policy &lt;- list(id='POL-001', premium=2400.00, ...)</span></div></div>
+        <div class="line-row"><div class="line-code">policy['id'] &nbsp;&nbsp;policy['premium']</div><div class="line-exp-text"><strong>Access a dictionary value by key</strong> using square brackets with the key name as a string. This is the standard access pattern — <code>policy.id</code> does not work for plain dictionaries (it works for objects/classes). <span class="r-eq">R: policy$id or policy[['id']]</span></div></div>
+        <div class="line-row"><div class="line-code">policy['no_claims_discount'] = 0.30</div><div class="line-exp-text"><strong>Adds a new key-value pair.</strong> If the key doesn't exist, Python creates it. If it already exists, the value is updated. Dictionaries grow dynamically — no pre-declaration needed. <span class="r-eq">R: policy$no_claims_discount &lt;- 0.30</span></div></div>
+        <div class="line-row"><div class="line-code">unique_types = set(all_types)</div><div class="line-exp-text"><strong>Set — a collection of unique values.</strong> Passing a list to <code>set()</code> automatically removes duplicates. Sets are unordered — you cannot index them. Their main use is deduplication and membership testing (<code>'Motor' in unique_types</code>). <span class="r-eq">R: unique(all_types)</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- SECTION 2: CONTROL FLOW -->
+  <div class="section">
+    <div class="sec-num">Section 2</div>
+    <div class="sec-title">Control Flow — Conditionals & Loops</div>
+    <div class="sec-body"><p>Control flow determines what your code does based on data values. In actuarial work this means: rating factors, benefit triggers, iteration over policies. Python's syntax is minimal — indentation (4 spaces) replaces the curly braces you're used to in R.</p></div>
+
+    <div class="callout blue"><b>Key difference from R:</b> Python uses indentation to define code blocks. Where R uses <code>{ }</code>, Python uses a colon <code>:</code> followed by indented lines. The indent is part of the syntax — incorrect indentation is a syntax error.</div>
+
+    <div class="code-block">
+      <div class="code-top">
+        <div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 3</span><span class="code-title-text">Conditionals — if / elif / else</span></div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+<pre class="code-body"><span class="cm"># Motor insurance premium loading by age band</span>
+driver_age = <span class="nm">22</span>
+base_premium = <span class="nm">1200.00</span>
+
+<span class="kw">if</span> driver_age < <span class="nm">25</span>:
+    loading = <span class="nm">0.45</span>
+    category = <span class="st">"Young driver — high risk"</span>
+<span class="kw">elif</span> driver_age < <span class="nm">35</span>:
+    loading = <span class="nm">0.15</span>
+    category = <span class="st">"Standard — moderate risk"</span>
+<span class="kw">elif</span> driver_age < <span class="nm">65</span>:
+    loading = <span class="nm">0.00</span>
+    category = <span class="st">"Standard — low risk"</span>
+<span class="kw">else</span>:
+    loading = <span class="nm">0.20</span>
+    category = <span class="st">"Senior driver — elevated risk"</span>
+
+final_premium = base_premium * (<span class="nm">1</span> + loading)
+<span class="fn">print</span>(<span class="st">f"Driver age:    {driver_age}"</span>)
+<span class="fn">print</span>(<span class="st">f"Category:      {category}"</span>)
+<span class="fn">print</span>(<span class="st">f"Loading:       {loading * 100:.0f}%"</span>)
+<span class="fn">print</span>(<span class="st">f"Final premium: ${final_premium:,.2f}"</span>)</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header">
+        <div class="breakdown-header-text">Line-by-line explanation — Cell 3</div>
+        <button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button>
+      </div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">if driver_age &lt; 25:</div><div class="line-exp-text"><strong>Start of a conditional block.</strong> Python evaluates whether <code>driver_age &lt; 25</code> is <code>True</code> or <code>False</code>. Note the colon at the end — this is required. The indented lines below (loading = 0.45, category = "...") only run if the condition is True. No parentheses needed around the condition. <span class="r-eq">R: if (driver_age &lt; 25) { ... }</span></div></div>
+        <div class="line-row"><div class="line-code">    loading = 0.45</div><div class="line-exp-text"><strong>The 4-space indent marks this as inside the if block.</strong> This line only executes when the condition above is True. In R you'd use curly braces — Python uses indentation. Use exactly 4 spaces (not tabs) — Jupyter inserts them automatically when you press Tab.</div></div>
+        <div class="line-row"><div class="line-code">elif driver_age &lt; 35:</div><div class="line-exp-text"><strong><code>elif</code></strong> (else-if) — checks a second condition only if the first was False. Python evaluates conditions in order and runs the first matching block only. You can have as many <code>elif</code> branches as you need. <span class="r-eq">R: else if (driver_age &lt; 35) { ... }</span></div></div>
+        <div class="line-row"><div class="line-code">else:</div><div class="line-exp-text"><strong>Catch-all block</strong> — runs only if none of the <code>if</code>/<code>elif</code> conditions were True. It has no condition, just a colon. In a rating factor context, this handles any age not covered by the specific bands above. <span class="r-eq">R: else { ... }</span></div></div>
+        <div class="line-row"><div class="line-code">final_premium = base_premium * (1 + loading)</div><div class="line-exp-text"><strong>Uses the <code>loading</code> variable</strong> set inside whichever if/elif/else block ran. This is a key pattern: set a variable inside the conditional, use it outside. Both <code>loading</code> and <code>category</code> will have been assigned by the time this line runs, regardless of which branch executed.</div></div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-top">
+        <div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 4</span><span class="code-title-text">Loops — for, while, and list comprehensions</span></div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+<pre class="code-body"><span class="cm"># --- For loop: iterate over a list ---</span>
+claim_amounts = [<span class="nm">1500</span>, <span class="nm">8200</span>, <span class="nm">450</span>, <span class="nm">23000</span>, <span class="nm">3100</span>]
+total = <span class="nm">0</span>
+<span class="kw">for</span> claim <span class="kw">in</span> claim_amounts:
+    total += claim
+<span class="fn">print</span>(<span class="st">f"Total claims: ${total:,}"</span>)
+
+<span class="cm"># --- For loop with range: iterate n times ---</span>
+<span class="fn">print</span>(<span class="st">"\nCompound interest on $10,000 at 8.5% over 5 years:"</span>)
+principal = <span class="nm">10_000</span>
+<span class="kw">for</span> year <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">6</span>):
+    principal = principal * <span class="nm">1.085</span>
+    <span class="fn">print</span>(<span class="st">f"  Year {year}: ${principal:,.2f}"</span>)
+
+<span class="cm"># --- While loop: repeat until condition is met ---</span>
+reserve = <span class="nm">100_000</span>
+annual_payout = <span class="nm">12_000</span>
+years = <span class="nm">0</span>
+<span class="kw">while</span> reserve > <span class="nm">0</span>:
+    reserve -= annual_payout
+    years += <span class="nm">1</span>
+<span class="fn">print</span>(<span class="st">f"\nReserve exhausted after {years} years"</span>)
+
+<span class="cm"># --- List comprehension: concise loop that builds a list ---</span>
+loadings  = [<span class="nm">0.0</span>, <span class="nm">0.1</span>, <span class="nm">0.2</span>, <span class="nm">0.3</span>, <span class="nm">0.45</span>]
+base      = <span class="nm">1200</span>
+premiums  = [base * (<span class="nm">1</span> + l) <span class="kw">for</span> l <span class="kw">in</span> loadings]
+<span class="fn">print</span>(<span class="st">f"\nAdjusted premiums: {premiums}"</span>)
+
+<span class="cm"># Comprehension with filter: only high-risk premiums</span>
+high_risk = [p <span class="kw">for</span> p <span class="kw">in</span> premiums <span class="kw">if</span> p > <span class="nm">1400</span>]
+<span class="fn">print</span>(<span class="st">f"High-risk premiums: {high_risk}"</span>)</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header">
+        <div class="breakdown-header-text">Line-by-line explanation — Cell 4</div>
+        <button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button>
+      </div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">for claim in claim_amounts:</div><div class="line-exp-text"><strong>Iterates over every item in the list.</strong> On each loop iteration, <code>claim</code> takes the next value from <code>claim_amounts</code>. The variable name <code>claim</code> is chosen by you — it could be anything. The colon and indent follow the same rule as <code>if</code>. <span class="r-eq">R: for (claim in claim_amounts) { ... }</span></div></div>
+        <div class="line-row"><div class="line-code">total += claim</div><div class="line-exp-text"><strong><code>+=</code> is shorthand</strong> for <code>total = total + claim</code>. Python has shorthand operators: <code>+=</code>, <code>-=</code>, <code>*=</code>, <code>/=</code>. They modify the variable in-place. This is how you accumulate a running total in a loop.</div></div>
+        <div class="line-row"><div class="line-code">principal = 10_000</div><div class="line-exp-text"><strong>Underscores in numbers</strong> are a Python readability feature — <code>10_000</code> is identical to <code>10000</code> but easier to read for large numbers. Use them for financial amounts: <code>1_000_000</code> for a million.</div></div>
+        <div class="line-row"><div class="line-code">for year in range(1, 6):</div><div class="line-exp-text"><strong><code>range(1, 6)</code></strong> produces integers 1, 2, 3, 4, 5 — stop value (6) is excluded. This is how you loop a known number of times. Here it models 5 years of compound interest growth — a core financial mathematics pattern. <span class="r-eq">R: for (year in 1:5) { ... }</span></div></div>
+        <div class="line-row"><div class="line-code">while reserve > 0:</div><div class="line-exp-text"><strong>While loop</strong> — repeats as long as the condition remains True. Unlike a for loop, you don't know in advance how many iterations there will be. Use while loops when the stopping condition is determined by the data — e.g. a reserve running to zero, ruin in a simulation, or convergence of a numerical method. <span class="r-eq">R: while (reserve > 0) { ... }</span></div></div>
+        <div class="line-row"><div class="line-code">reserve -= annual_payout</div><div class="line-exp-text"><strong>Decrements the reserve by the payout each year.</strong> The <code>-=</code> operator is equivalent to <code>reserve = reserve - annual_payout</code>. On each iteration, the reserve shrinks. When it hits zero or below, the while condition becomes False and the loop stops.</div></div>
+        <div class="line-row"><div class="line-code">premiums = [base * (1 + l) for l in loadings]</div><div class="line-exp-text"><strong>List comprehension</strong> — the most Python-specific construct in this unit. It builds a new list by applying an expression to every item in an existing list, all in one line. Read it as: "for each loading l in loadings, compute base × (1 + l) and collect the results into a list." This replaces a 4-line for loop with a single readable line. <span class="r-eq">R: premiums &lt;- base * (1 + loadings) — R vectorises automatically</span></div></div>
+        <div class="line-row"><div class="line-code">[p for p in premiums if p > 1400]</div><div class="line-exp-text"><strong>Filtered comprehension</strong> — adds an <code>if</code> condition at the end to include only items meeting the filter. Only premiums greater than 1400 are included in the output list. This combines a loop and a filter into one expression. <span class="r-eq">R: premiums[premiums > 1400]</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- SECTION 3: FUNCTIONS -->
+  <div class="section">
+    <div class="sec-num">Section 3</div>
+    <div class="sec-title">Writing Actuarial Functions</div>
+    <div class="sec-body"><p>Functions are the building blocks of reusable actuarial code. Every formula you use repeatedly — net premium, present value, loss ratio — should become a function. Python functions are defined with <code>def</code>, and well-written functions have docstrings explaining what they do.</p></div>
+
+    <div class="code-block">
+      <div class="code-top">
+        <div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 5</span><span class="code-title-text">Defining and using actuarial functions</span></div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+<pre class="code-body"><span class="cm"># --- Basic function ---</span>
+<span class="kw">def</span> <span class="fn">loss_ratio</span>(claims_paid, premiums_earned):
+    <span class="st">"""
+    Calculate the loss ratio for an insurance portfolio.
+
+    Parameters:
+        claims_paid (float):     Total claims paid in the period.
+        premiums_earned (float): Total premiums earned in the period.
+
+    Returns:
+        float: Loss ratio as a decimal (e.g. 0.73 = 73%).
+    """</span>
+    <span class="kw">return</span> claims_paid / premiums_earned
+
+<span class="cm"># --- Function with a default argument ---</span>
+<span class="kw">def</span> <span class="fn">present_value</span>(future_value, rate, years, frequency=<span class="nm">1</span>):
+    <span class="st">"""
+    Compute the present value of a future cash flow.
+
+    Parameters:
+        future_value (float): The amount to be received in the future.
+        rate (float):         Annual interest rate as a decimal.
+        years (int):          Number of years until the payment.
+        frequency (int):      Compounding frequency per year (default: 1 = annual).
+
+    Returns:
+        float: Present value of the cash flow.
+    """</span>
+    <span class="kw">return</span> future_value / (<span class="nm">1</span> + rate / frequency) ** (years * frequency)
+
+<span class="cm"># --- Function returning multiple values ---</span>
+<span class="kw">def</span> <span class="fn">combined_ratio</span>(claims, expenses, premiums):
+    <span class="st">"""Return loss ratio, expense ratio, and combined ratio."""</span>
+    lr = claims  / premiums
+    er = expenses / premiums
+    cr = lr + er
+    <span class="kw">return</span> lr, er, cr
+
+<span class="cm"># --- Calling the functions ---</span>
+lr = <span class="fn">loss_ratio</span>(<span class="nm">7_300_000</span>, <span class="nm">10_000_000</span>)
+<span class="fn">print</span>(<span class="st">f"Loss ratio:    {lr:.1%}"</span>)
+
+pv = <span class="fn">present_value</span>(<span class="nm">500_000</span>, rate=<span class="nm">0.085</span>, years=<span class="nm">10</span>)
+<span class="fn">print</span>(<span class="st">f"Present value: ${pv:,.2f}"</span>)
+
+pv_monthly = <span class="fn">present_value</span>(<span class="nm">500_000</span>, rate=<span class="nm">0.085</span>, years=<span class="nm">10</span>, frequency=<span class="nm">12</span>)
+<span class="fn">print</span>(<span class="st">f"PV (monthly):  ${pv_monthly:,.2f}"</span>)
+
+loss_r, exp_r, comb_r = <span class="fn">combined_ratio</span>(<span class="nm">7_300_000</span>, <span class="nm">1_800_000</span>, <span class="nm">10_000_000</span>)
+<span class="fn">print</span>(<span class="st">f"Loss: {loss_r:.1%} | Expense: {exp_r:.1%} | Combined: {comb_r:.1%}"</span>)</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header">
+        <div class="breakdown-header-text">Line-by-line explanation — Cell 5</div>
+        <button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button>
+      </div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">def loss_ratio(claims_paid, premiums_earned):</div><div class="line-exp-text"><strong><code>def</code> declares a function.</strong> The name follows immediately, then the parameter names in parentheses, then a colon. Parameters are the inputs the function expects — they become local variables inside the function. The function body is indented below. <span class="r-eq">R: loss_ratio &lt;- function(claims_paid, premiums_earned) { ... }</span></div></div>
+        <div class="line-row"><div class="line-code">"""...""" &nbsp;(docstring)</div><div class="line-exp-text"><strong>A docstring</strong> — a multi-line string placed immediately after the <code>def</code> line. It documents what the function does, its parameters, and return value. This is the standard way to document Python functions. You can read it later with <code>help(loss_ratio)</code> or by typing <code>loss_ratio?</code> in Jupyter. Always write docstrings for actuarial functions — your colleagues (and your future self) will thank you.</div></div>
+        <div class="line-row"><div class="line-code">return claims_paid / premiums_earned</div><div class="line-exp-text"><strong><code>return</code> sends a value back</strong> to wherever the function was called. Without a <code>return</code> statement, the function returns <code>None</code>. The return value here is a float — the loss ratio as a decimal. <span class="r-eq">R: return(claims_paid / premiums_earned)</span></div></div>
+        <div class="line-row"><div class="line-code">def present_value(future_value, rate, years, frequency=1):</div><div class="line-exp-text"><strong>Default argument:</strong> <code>frequency=1</code> means if the caller doesn't provide <code>frequency</code>, it defaults to 1 (annual compounding). Default arguments must come after non-default ones. They let functions be called with minimal arguments for the common case, and overridden when needed. <span class="r-eq">R: function(future_value, rate, years, frequency=1) { ... }</span></div></div>
+        <div class="line-row"><div class="line-code">(1 + rate / frequency) ** (years * frequency)</div><div class="line-exp-text"><strong>The present value formula</strong> programmatically. <code>**</code> is Python's exponentiation operator (R uses <code>^</code>). The parentheses control order of operations — always use them explicitly in financial formulas rather than relying on operator precedence.</div></div>
+        <div class="line-row"><div class="line-code">return lr, er, cr</div><div class="line-exp-text"><strong>Returning multiple values</strong> — Python functions can return more than one value by separating them with commas. Python bundles them into a tuple. The caller can unpack them with <code>loss_r, exp_r, comb_r = combined_ratio(...)</code>. This is very useful for actuarial functions that need to output several related metrics at once. <span class="r-eq">R: return(list(lr=lr, er=er, cr=cr))</span></div></div>
+        <div class="line-row"><div class="line-code">present_value(500_000, rate=0.085, years=10)</div><div class="line-exp-text"><strong>Keyword arguments</strong> — using the parameter name explicitly when calling. This makes code more readable (you can see what each argument means) and allows you to pass arguments in any order. You can mix positional and keyword: the first positional argument fills <code>future_value</code>, then keyword arguments fill the rest. <span class="r-eq">R: present_value(500000, rate=0.085, years=10)</span></div></div>
+        <div class="line-row"><div class="line-code">f"Loss: {loss_r:.1%}"</div><div class="line-exp-text"><strong>The <code>:.1%</code> format code</strong> multiplies the float by 100 and adds a % sign with 1 decimal place. So <code>0.73</code> becomes <code>73.0%</code>. This is much cleaner than manually writing <code>{loss_r * 100:.1f}%</code> — use <code>:.1%</code> whenever formatting rates or ratios for display.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- SECTION 4: ERROR HANDLING -->
+  <div class="section">
+    <div class="sec-num">Section 4</div>
+    <div class="sec-title">Error Handling with try/except</div>
+    <div class="sec-body"><p>Real actuarial data is messy. Division by zero, missing fields, wrong types — your code will encounter these. Instead of crashing, use <code>try/except</code> to handle errors gracefully and log what went wrong.</p></div>
+
+    <div class="code-block">
+      <div class="code-top">
+        <div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 6</span><span class="code-title-text">try / except — robust actuarial functions</span></div>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+<pre class="code-body"><span class="kw">def</span> <span class="fn">safe_loss_ratio</span>(claims_paid, premiums_earned):
+    <span class="st">"""Calculate loss ratio with error handling for zero/invalid premiums."""</span>
+    <span class="kw">try</span>:
+        <span class="kw">if</span> premiums_earned <= <span class="nm">0</span>:
+            <span class="kw">raise</span> <span class="fn">ValueError</span>(<span class="st">f"Premiums must be positive, got {premiums_earned}"</span>)
+        result = claims_paid / premiums_earned
+        <span class="kw">return</span> result
+    <span class="kw">except</span> ZeroDivisionError:
+        <span class="fn">print</span>(<span class="st">"Error: Cannot divide by zero — premiums_earned is 0."</span>)
+        <span class="kw">return</span> <span class="kw">None</span>
+    <span class="kw">except</span> ValueError <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="st">f"Error: {e}"</span>)
+        <span class="kw">return</span> <span class="kw">None</span>
+    <span class="kw">except</span> TypeError:
+        <span class="fn">print</span>(<span class="st">"Error: Both arguments must be numbers."</span>)
+        <span class="kw">return</span> <span class="kw">None</span>
+
+<span class="cm"># --- Test all error cases ---</span>
+<span class="fn">print</span>(<span class="fn">safe_loss_ratio</span>(<span class="nm">7_300_000</span>, <span class="nm">10_000_000</span>))  <span class="cm"># Normal: 0.73</span>
+<span class="fn">print</span>(<span class="fn">safe_loss_ratio</span>(<span class="nm">7_300_000</span>, <span class="nm">0</span>))            <span class="cm"># ZeroDivision</span>
+<span class="fn">print</span>(<span class="fn">safe_loss_ratio</span>(<span class="nm">7_300_000</span>, -<span class="nm">5000</span>))        <span class="cm"># ValueError</span>
+<span class="fn">print</span>(<span class="fn">safe_loss_ratio</span>(<span class="st">"lots"</span>, <span class="nm">10_000</span>))          <span class="cm"># TypeError</span></pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header">
+        <div class="breakdown-header-text">Line-by-line explanation — Cell 6</div>
+        <button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button>
+      </div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">try:</div><div class="line-exp-text"><strong>Opens the "attempt" block.</strong> Python runs the indented code inside <code>try</code>. If any line raises an error (exception), Python immediately jumps to the matching <code>except</code> block instead of crashing the entire program. Code after the error line inside <code>try</code> is skipped. <span class="r-eq">R: tryCatch({ ... }, error = function(e) { ... })</span></div></div>
+        <div class="line-row"><div class="line-code">raise ValueError(f"Premiums must be positive...")</div><div class="line-exp-text"><strong><code>raise</code> deliberately triggers an error.</strong> You use this to enforce business rules — premiums cannot be zero or negative. <code>ValueError</code> is the appropriate error type for invalid input values. The string message describes exactly what went wrong, which helps whoever is debugging.</div></div>
+        <div class="line-row"><div class="line-code">except ZeroDivisionError:</div><div class="line-exp-text"><strong>Catches a specific error type.</strong> <code>ZeroDivisionError</code> fires when Python tries to divide by zero. By catching specific errors rather than a generic <code>except:</code>, you handle different failure modes differently — division by zero is a different problem from a wrong data type. <span class="r-eq">R: tryCatch(..., error = function(e) { ... })</span></div></div>
+        <div class="line-row"><div class="line-code">except ValueError as e:</div><div class="line-exp-text"><strong><code>as e</code> captures the error object</strong> — the actual exception — into the variable <code>e</code>. You can then print <code>e</code> to see the error message. This is how you log what went wrong while still recovering gracefully. The message we passed to <code>raise ValueError(...)</code> appears here.</div></div>
+        <div class="line-row"><div class="line-code">except TypeError:</div><div class="line-exp-text"><strong>Catches a TypeError</strong> — which fires when an operation is applied to the wrong type (like dividing a string by a number). In actuarial pipelines, wrong types often come from reading CSVs where numeric columns were imported as strings. Catching this lets you log the problem rather than crash.</div></div>
+        <div class="line-row"><div class="line-code">return None</div><div class="line-exp-text"><strong>Returns <code>None</code> on failure.</strong> This signals "no valid result" to the caller. The caller can check <code>if result is None:</code> to handle failure cases. Returning <code>None</code> is preferable to letting the function crash, especially when processing many policies in a loop — one bad record shouldn't stop the entire run.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- EXERCISES 0.2 -->
+  <div class="section">
+    <div class="sec-num">Practice Exercises</div>
+    <div class="sec-title">Unit 0.2 — Check Your Understanding</div>
+
+    <div class="exercise">
+      <div class="ex-head"><span class="ex-num">EX 0.2.1</span><span class="ex-title">No-Claims Discount Calculator</span><span class="ex-level beg">beginner</span></div>
+      <div class="ex-body">
+        <div class="ex-task">Write a function <code>no_claims_discount(years_claim_free)</code> that returns the applicable discount as a decimal, using the following schedule: 0 years = 0%, 1 year = 10%, 2 years = 20%, 3 years = 30%, 4+ years = 40%. Test it for years 0 through 5. Then write a second function <code>adjusted_premium(base, years_claim_free)</code> that applies the discount to a base premium.</div>
+        <div class="ex-hint">💡 Use an if/elif/else chain inside the first function. Call the first function from inside the second.</div>
+      </div>
+    </div>
+
+    <div class="exercise">
+      <div class="ex-head"><span class="ex-num">EX 0.2.2</span><span class="ex-title">Annuity Present Value Table</span><span class="ex-level beg">beginner</span></div>
+      <div class="ex-body">
+        <div class="ex-task">Using a for loop and your <code>present_value()</code> function from Cell 5, generate a table showing the present value of $1,000 received at the end of each year for years 1 through 10, at an interest rate of 6% per annum. Store results in a list of tuples <code>(year, pv)</code> and print each row formatted as <code>Year 3: $839.62</code>. Then compute and print the total (sum) of all present values — this is the present value of a 10-year annuity.</div>
+        <div class="ex-hint">💡 Hint: Use <code>range(1, 11)</code> and a list comprehension or for loop. Append <code>(year, pv)</code> tuples to a list.</div>
+      </div>
+    </div>
+
+    <div class="exercise">
+      <div class="ex-head"><span class="ex-num">EX 0.2.3</span><span class="ex-title">Portfolio Premium Summary</span><span class="ex-level int">intermediate</span></div>
+      <div class="ex-body">
+        <div class="ex-task">You are given a list of policy dictionaries below. Write a function <code>portfolio_summary(policies)</code> that loops over the list and returns a new dictionary containing: total number of policies, total premium written, average premium, number of at-fault policies, and total claims paid. Include error handling for missing keys.</div>
+        <div class="code-block" style="margin:12px 0 0">
+          <div class="code-top"><div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">starter data</span></div></div>
+<pre class="code-body" style="font-size:12.5px">policies = [
+    {<span class="st">'id'</span>:<span class="st">'P001'</span>, <span class="st">'premium'</span>:<span class="nm">1200</span>, <span class="st">'at_fault'</span>:<span class="kw">False</span>, <span class="st">'claim'</span>:<span class="nm">0</span>},
+    {<span class="st">'id'</span>:<span class="st">'P002'</span>, <span class="st">'premium'</span>:<span class="nm">3400</span>, <span class="st">'at_fault'</span>:<span class="kw">True</span>,  <span class="st">'claim'</span>:<span class="nm">4200</span>},
+    {<span class="st">'id'</span>:<span class="st">'P003'</span>, <span class="st">'premium'</span>:<span class="nm">875</span>,  <span class="st">'at_fault'</span>:<span class="kw">False</span>, <span class="st">'claim'</span>:<span class="nm">0</span>},
+    {<span class="st">'id'</span>:<span class="st">'P004'</span>, <span class="st">'premium'</span>:<span class="nm">2100</span>, <span class="st">'at_fault'</span>:<span class="kw">True</span>,  <span class="st">'claim'</span>:<span class="nm">1800</span>},
+    {<span class="st">'id'</span>:<span class="st">'P005'</span>, <span class="st">'premium'</span>:<span class="nm">1550</span>}   <span class="cm"># missing at_fault and claim keys</span>
+]</pre>
+        </div>
+        <div class="ex-hint" style="margin-top:10px">💡 Use <code>policy.get('at_fault', False)</code> to safely access keys that might be missing — <code>.get()</code> returns the default value instead of raising a KeyError.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="next-banner">
+    <div><div class="next-lbl">Up next</div><div class="next-title">Unit 0.3 — NumPy & Pandas for Actuarial Data</div></div>
+    <button class="next-btn" onclick="switchUnit('u03', document.querySelectorAll('.unit-pill')[2])">Next Unit →</button>
+  </div>
+
+</div><!-- /body-wrap -->
+</div><!-- /unit 0.2 -->
+
+<!-- ══════════════════════════════════════════ UNIT 0.3 ══════ -->
+<div id="u03" class="unit-page">
+<div class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="hero-phase">Unit 0.3 · Phase 0: Foundations</div>
+      <h1 class="hero-title">NumPy & Pandas for<br><span>Actuarial Data</span></h1>
+      <p class="hero-sub">Master the two libraries you'll use every single day — fast array arithmetic with NumPy and professional data manipulation with Pandas — applied to real insurance datasets.</p>
+    </div>
+    <div class="hero-meta">
+      <div class="meta-chip green">Builds on Units 0.1–0.2</div>
+      <div class="meta-chip">~100 min</div>
+      <div class="meta-chip">numpy · pandas · openpyxl</div>
+    </div>
+  </div>
+</div>
+
+<div class="body-wrap">
+
+  <div class="section">
+    <div class="sec-num">Learning Outcomes</div>
+    <div class="sec-title">By the end of this unit you will be able to…</div>
+    <div class="outcomes-grid">
+      <div class="oc"><div class="oc-icon">⚡</div><div class="oc-title">Vectorised arithmetic</div><div class="oc-body">Apply NumPy array operations to replace slow loops for premium, reserve, and annuity calculations.</div></div>
+      <div class="oc"><div class="oc-icon">🧹</div><div class="oc-title">Clean messy data</div><div class="oc-body">Handle missing values, duplicates, wrong types, and outliers in actuarial datasets.</div></div>
+      <div class="oc"><div class="oc-icon">🔗</div><div class="oc-title">Merge & reshape</div><div class="oc-body">Join policy and claims tables, pivot data, and build loss development triangles.</div></div>
+      <div class="oc"><div class="oc-icon">📁</div><div class="oc-title">Read & write files</div><div class="oc-body">Import CSV and Excel files, export clean datasets, and handle real-world file formats.</div></div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- SECTION 1: NUMPY -->
+  <div class="section">
+    <div class="sec-num">Section 1</div>
+    <div class="sec-title">NumPy — Fast Vectorised Computation</div>
+    <div class="sec-body">
+      <p>NumPy's key idea is the <strong>array</strong> — a block of numbers stored contiguously in memory. Operations on arrays apply to all elements at once without writing a loop. In R, all arithmetic is already vectorised by default — NumPy brings the same behaviour to Python.</p>
+      <p>For actuarial work this matters enormously: computing premiums for 100,000 policies, discounting cash flows for 40 years, or simulating 1,000,000 claim scenarios — all need fast vectorised computation.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-top"><div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 1</span><span class="code-title-text">NumPy arrays and vectorised arithmetic</span></div><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre class="code-body"><span class="kw">import</span> <span class="im">numpy</span> <span class="kw">as</span> np
+
+sum_insured  = np.<span class="fn">array</span>([<span class="nm">50000</span>, <span class="nm">120000</span>, <span class="nm">75000</span>, <span class="nm">200000</span>, <span class="nm">95000</span>])
+rate_per_mil = np.<span class="fn">array</span>([<span class="nm">4.20</span>,   <span class="nm">3.85</span>,   <span class="nm">4.50</span>,   <span class="nm">3.60</span>,   <span class="nm">4.10</span>])
+
+premiums = (sum_insured / <span class="nm">1000</span>) * rate_per_mil
+<span class="fn">print</span>(<span class="st">"Premiums:    "</span>, premiums.<span class="fn">round</span>(<span class="nm">2</span>))
+
+discount_factors = <span class="nm">1</span> / (<span class="nm">1.075</span> ** np.<span class="fn">arange</span>(<span class="nm">1</span>, <span class="nm">11</span>))
+<span class="fn">print</span>(<span class="st">"Disc. factors:"</span>, discount_factors.<span class="fn">round</span>(<span class="nm">4</span>))
+
+cash_flows = np.<span class="fn">full</span>(<span class="nm">10</span>, <span class="nm">50000.0</span>)
+pv_annuity = np.<span class="fn">sum</span>(cash_flows * discount_factors)
+<span class="fn">print</span>(<span class="st">f"PV of annuity: ${pv_annuity:,.2f}"</span>)
+
+<span class="fn">print</span>(<span class="st">"\n--- Array statistics ---"</span>)
+<span class="fn">print</span>(<span class="st">f"Mean premium:   ${np.mean(premiums):.2f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Max premium:    ${np.max(premiums):.2f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Total exposure: ${np.sum(sum_insured):,}"</span>)
+<span class="fn">print</span>(<span class="st">f"Std deviation:  ${np.std(premiums, ddof=1):.2f}"</span>)
+
+high_value = sum_insured[sum_insured > <span class="nm">90000</span>]
+<span class="fn">print</span>(<span class="st">f"\nHigh-value policies (>90k): {high_value}"</span>)</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header"><div class="breakdown-header-text">Line-by-line explanation — Cell 1</div><button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button></div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">np.array([50000, 120000, ...])</div><div class="line-exp-text"><strong>Creates a NumPy array</strong> from a Python list. Unlike a Python list, a NumPy array holds elements of a single type (all floats or all ints), which allows extremely fast bulk operations. Think of it as R's atomic vector. <span class="r-eq">R: sum_insured &lt;- c(50000, 120000, ...)</span></div></div>
+        <div class="line-row"><div class="line-code">premiums = (sum_insured / 1000) * rate_per_mil</div><div class="line-exp-text"><strong>Vectorised arithmetic</strong> — this single line divides every element of <code>sum_insured</code> by 1000, then multiplies each result by the corresponding element of <code>rate_per_mil</code>, producing a new array of 5 premiums. No loop needed. This is identical to R's default behaviour. Python lists do not support this — only NumPy arrays do. <span class="r-eq">R: premiums &lt;- (sum_insured / 1000) * rate_per_mil</span></div></div>
+        <div class="line-row"><div class="line-code">np.arange(1, 11)</div><div class="line-exp-text"><strong>Generates an integer array</strong> [1, 2, 3, …, 10]. <code>arange(start, stop)</code> is like Python's <code>range()</code> but returns a NumPy array instead of a range object — so you can do maths on it directly. Here it creates the year indices for discounting. <span class="r-eq">R: 1:10</span></div></div>
+        <div class="line-row"><div class="line-code">1 / (1.075 ** np.arange(1, 11))</div><div class="line-exp-text"><strong>Computes 10 discount factors at once</strong> — v¹, v², …, v¹⁰ where v = 1/1.075. The exponentiation <code>**</code> applies element-wise across the array. This is the actuarial discounting pattern: <em>discount_factor[t] = (1+i)^-t</em>. Doing this for 40 years would just change <code>11</code> to <code>41</code> — the code doesn't change. <span class="r-eq">R: 1 / (1.075 ^ (1:10))</span></div></div>
+        <div class="line-row"><div class="line-code">np.full(10, 50000.0)</div><div class="line-exp-text"><strong>Creates an array of 10 identical values</strong> (50,000 each) — representing a level annuity paying $50,000 per year. <code>np.full(size, fill_value)</code> is the efficient way to initialise a constant array. For non-level cash flows you'd use <code>np.array([...])</code> directly. <span class="r-eq">R: rep(50000, 10)</span></div></div>
+        <div class="line-row"><div class="line-code">np.sum(cash_flows * discount_factors)</div><div class="line-exp-text"><strong>The present value formula</strong>: multiply each cash flow by its discount factor, then sum all products. This is Σ(CF_t × v^t) — the fundamental actuarial present value calculation — done in one line on arrays of any length. <span class="r-eq">R: sum(cash_flows * discount_factors)</span></div></div>
+        <div class="line-row"><div class="line-code">np.std(premiums, ddof=1)</div><div class="line-exp-text"><strong><code>ddof=1</code> is critical</strong> — it applies the Bessel correction (divides by n−1 instead of n), giving the sample standard deviation rather than the population standard deviation. Always use <code>ddof=1</code> for sample data. Without it, NumPy uses population std (divides by n), which is different from R's <code>sd()</code>. <span class="r-eq">R: sd(premiums) — R uses ddof=1 by default</span></div></div>
+        <div class="line-row"><div class="line-code">sum_insured[sum_insured > 90000]</div><div class="line-exp-text"><strong>Boolean indexing</strong> — <code>sum_insured > 90000</code> creates a boolean array [False, True, False, True, True]. Using it as an index inside <code>[]</code> returns only the elements where the condition is True. This is one of the most-used patterns in NumPy and Pandas. <span class="r-eq">R: sum_insured[sum_insured > 90000]</span></div></div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-top"><div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 2</span><span class="code-title-text">Random simulation — Monte Carlo claims</span></div><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre class="code-body">np.random.<span class="fn">seed</span>(<span class="nm">42</span>)
+
+n_simulations = <span class="nm">100_000</span>
+claim_freq    = <span class="nm">0.08</span>
+mean_severity = <span class="nm">5_000</span>
+sigma_severity= <span class="nm">1.2</span>
+
+has_claim   = np.random.<span class="fn">binomial</span>(<span class="nm">1</span>, claim_freq, n_simulations).astype(<span class="fn">bool</span>)
+n_claims    = has_claim.<span class="fn">sum</span>()
+
+severities  = np.random.<span class="fn">lognormal</span>(
+    mean=np.<span class="fn">log</span>(mean_severity) - <span class="nm">0.5</span> * sigma_severity**<span class="nm">2</span>,
+    sigma=sigma_severity,
+    size=n_claims
+)
+
+total_losses = np.<span class="fn">zeros</span>(n_simulations)
+total_losses[has_claim] = severities
+
+<span class="fn">print</span>(<span class="st">f"Simulations:       {n_simulations:,}"</span>)
+<span class="fn">print</span>(<span class="st">f"Claims occurred:   {n_claims:,} ({n_claims/n_simulations:.1%})"</span>)
+<span class="fn">print</span>(<span class="st">f"Mean total loss:   ${np.mean(total_losses):,.2f}"</span>)
+<span class="fn">print</span>(<span class="st">f"95th percentile:   ${np.percentile(total_losses, 95):,.2f}"</span>)
+<span class="fn">print</span>(<span class="st">f"99th percentile:   ${np.percentile(total_losses, 99):,.2f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Prob(loss > 20k):  {np.mean(total_losses > 20_000):.2%}"</span>)</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header"><div class="breakdown-header-text">Line-by-line explanation — Cell 2</div><button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button></div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">np.random.binomial(1, claim_freq, n_simulations)</div><div class="line-exp-text"><strong>Simulates claim occurrence</strong> for each of the 100,000 policies. Each policy independently has an 8% chance of a claim (<code>p=0.08</code>). <code>binomial(1, p, n)</code> is equivalent to n independent Bernoulli trials — each returns 0 (no claim) or 1 (claim). This is your first actuarial Monte Carlo. <span class="r-eq">R: rbinom(n_simulations, 1, claim_freq)</span></div></div>
+        <div class="line-row"><div class="line-code">.astype(bool)</div><div class="line-exp-text"><strong>Converts integers (0/1) to booleans (False/True)</strong>. This lets us use the array as a boolean mask in later indexing. <code>.astype()</code> converts an array from one type to another without changing values. <span class="r-eq">R: as.logical(...)</span></div></div>
+        <div class="line-row"><div class="line-code">np.log(mean_severity) - 0.5 * sigma_severity**2</div><div class="line-exp-text"><strong>Converts mean and sigma to log-normal parameters</strong>. If X ~ LogNormal(μ, σ²) then E[X] = exp(μ + σ²/2). Rearranging: μ = log(E[X]) − σ²/2. This ensures the simulated severities have the intended mean of $5,000, not the raw log-scale mean. This is an important actuarial detail — always parameterise correctly.</div></div>
+        <div class="line-row"><div class="line-code">size=n_claims</div><div class="line-exp-text"><strong>Only generates severities for policies that had a claim.</strong> We simulate the exact number of claims (<code>n_claims</code>), not one per policy. This is more efficient and accurate — policies with no claim have zero loss, handled separately below.</div></div>
+        <div class="line-row"><div class="line-code">total_losses = np.zeros(n_simulations)</div><div class="line-exp-text"><strong>Initialises an array of zeros</strong> — all 100,000 policies start with zero loss. <code>np.zeros(n)</code> is the standard way to create an empty result array before populating it. <span class="r-eq">R: total_losses &lt;- rep(0, n_simulations)</span></div></div>
+        <div class="line-row"><div class="line-code">total_losses[has_claim] = severities</div><div class="line-exp-text"><strong>Inserts claim severities into the positions where claims occurred.</strong> <code>has_claim</code> is a boolean array — it selects exactly the positions corresponding to policies that had a claim, and assigns the corresponding severity to each. Policies with no claim remain at zero.</div></div>
+        <div class="line-row"><div class="line-code">np.percentile(total_losses, 95)</div><div class="line-exp-text"><strong>Computes the 95th percentile</strong> — the value below which 95% of simulated losses fall. In actuarial science this is a Value at Risk (VaR) estimate. <code>np.percentile(arr, q)</code> takes the array and the percentile level (0–100). <span class="r-eq">R: quantile(total_losses, 0.95)</span></div></div>
+        <div class="line-row"><div class="line-code">np.mean(total_losses > 20_000)</div><div class="line-exp-text"><strong>Estimates the probability that total loss exceeds $20,000.</strong> <code>total_losses > 20_000</code> creates a boolean array; <code>np.mean()</code> of a boolean array gives the proportion of True values — i.e. the empirical probability. This pattern (mean of boolean) is one of the most useful tricks in actuarial simulation. <span class="r-eq">R: mean(total_losses > 20000)</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- SECTION 2: PANDAS -->
+  <div class="section">
+    <div class="sec-num">Section 2</div>
+    <div class="sec-title">Pandas — Professional Data Manipulation</div>
+    <div class="sec-body">
+      <p>Pandas is where you'll spend most of your actuarial coding time. It handles everything R's tidyverse does — but as a single cohesive library. We'll work through the full pipeline: loading files, cleaning data, transforming, merging, and producing actuarial summary tables.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-top"><div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 3</span><span class="code-title-text">Loading files & first inspection</span></div><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre class="code-body"><span class="kw">import</span> <span class="im">pandas</span> <span class="kw">as</span> pd
+<span class="kw">import</span> <span class="im">numpy</span> <span class="kw">as</span> np
+
+np.random.<span class="fn">seed</span>(<span class="nm">7</span>)
+n = <span class="nm">500</span>
+
+policies = pd.<span class="fn">DataFrame</span>({
+    <span class="st">'policy_id'</span>  : [<span class="st">f"POL-{i:04d}"</span> <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, n+<span class="nm">1</span>)],
+    <span class="st">'age'</span>        : np.random.<span class="fn">randint</span>(<span class="nm">18</span>, <span class="nm">75</span>, n),
+    <span class="st">'vehicle_age'</span>: np.random.<span class="fn">randint</span>(<span class="nm">0</span>, <span class="nm">20</span>, n),
+    <span class="st">'sum_insured'</span>: np.random.<span class="fn">choice</span>([<span class="nm">50000</span>,<span class="nm">75000</span>,<span class="nm">100000</span>,<span class="nm">150000</span>,<span class="nm">200000</span>], n),
+    <span class="st">'region'</span>     : np.random.<span class="fn">choice</span>([<span class="st">'Harare'</span>,<span class="st">'Bulawayo'</span>,<span class="st">'Mutare'</span>,<span class="st">'Gweru'</span>], n),
+    <span class="st">'premium'</span>    : np.random.<span class="fn">lognormal</span>(<span class="nm">7.2</span>, <span class="nm">0.5</span>, n).<span class="fn">round</span>(<span class="nm">2</span>)
+})
+
+policies.<span class="fn">loc</span>[np.random.<span class="fn">choice</span>(policies.index, <span class="nm">20</span>, replace=<span class="kw">False</span>), <span class="st">'age'</span>] = np.nan
+policies.<span class="fn">loc</span>[np.random.<span class="fn">choice</span>(policies.index, <span class="nm">5</span>,  replace=<span class="kw">False</span>), <span class="st">'premium'</span>] = -<span class="nm">99</span>
+
+policies.<span class="fn">to_csv</span>(<span class="st">'policies.csv'</span>, index=<span class="kw">False</span>)
+df = pd.<span class="fn">read_csv</span>(<span class="st">'policies.csv'</span>)
+
+<span class="fn">print</span>(<span class="st">"Shape:"</span>, df.shape)
+<span class="fn">print</span>(<span class="st">"\nColumn dtypes:"</span>)
+<span class="fn">print</span>(df.dtypes)
+<span class="fn">print</span>(<span class="st">"\nMissing values:"</span>)
+<span class="fn">print</span>(df.<span class="fn">isnull</span>().<span class="fn">sum</span>())
+<span class="fn">display</span>(df.<span class="fn">head</span>())</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header"><div class="breakdown-header-text">Line-by-line explanation — Cell 3</div><button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button></div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">[f"POL-{i:04d}" for i in range(1, n+1)]</div><div class="line-exp-text"><strong>List comprehension generating formatted IDs.</strong> <code>f"POL-{i:04d}"</code> formats integer <code>i</code> as a 4-digit zero-padded number — so i=1 becomes "POL-0001", i=42 becomes "POL-0042". The <code>:04d</code> format code means: integer (<code>d</code>), minimum 4 characters wide (<code>4</code>), pad with zeros (<code>0</code>). This is how professional policy IDs are generated. <span class="r-eq">R: sprintf("POL-%04d", 1:n)</span></div></div>
+        <div class="line-row"><div class="line-code">np.random.randint(18, 75, n)</div><div class="line-exp-text"><strong>Generates n random integers</strong> between 18 (inclusive) and 75 (exclusive), i.e. 18–74. Use <code>randint</code> for whole-number variables like age, vehicle age, or years held. <span class="r-eq">R: sample(18:74, n, replace=TRUE)</span></div></div>
+        <div class="line-row"><div class="line-code">policies.loc[..., 'premium'] = -99</div><div class="line-exp-text"><strong>Injects invalid data</strong> (a sentinel value of −99 indicating a data entry error). In real insurance systems, missing or invalid values are sometimes coded as −99, −1, or 9999 rather than NULL. Our data cleaning step below will catch and correct these. This simulates real-world dirty data.</div></div>
+        <div class="line-row"><div class="line-code">policies.to_csv('policies.csv', index=False)</div><div class="line-exp-text"><strong>Saves the DataFrame to a CSV file.</strong> <code>index=False</code> prevents Pandas from writing the row index numbers (0, 1, 2…) as a column — you almost always want this. Without it, your CSV gets an unnamed first column of row numbers. <span class="r-eq">R: write.csv(policies, 'policies.csv', row.names=FALSE)</span></div></div>
+        <div class="line-row"><div class="line-code">df = pd.read_csv('policies.csv')</div><div class="line-exp-text"><strong>Reads the CSV back in as a DataFrame.</strong> This round-trip (save then reload) is good practice — it confirms the file was written correctly, and mirrors the real workflow where you receive a CSV from a client or system. <code>read_csv()</code> automatically infers column types. <span class="r-eq">R: df &lt;- read.csv('policies.csv')</span></div></div>
+        <div class="line-row"><div class="line-code">df.shape</div><div class="line-exp-text"><strong>Returns a tuple (rows, columns)</strong> — e.g. (500, 6). Always check the shape after loading a file. If you expected 500 rows and got 498, something went wrong (duplicate header, blank rows, etc.). <span class="r-eq">R: dim(df)</span></div></div>
+        <div class="line-row"><div class="line-code">df.dtypes</div><div class="line-exp-text"><strong>Shows the inferred data type of each column.</strong> Key types: <code>int64</code> (integer), <code>float64</code> (decimal), <code>object</code> (string/mixed). Always check dtypes after loading — a column you expect to be numeric might be <code>object</code> if any row contains text, which will break arithmetic. <span class="r-eq">R: sapply(df, class)</span></div></div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-top"><div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 4</span><span class="code-title-text">Data cleaning — the full pipeline</span></div><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre class="code-body">df_clean = df.<span class="fn">copy</span>()
+
+df_clean[<span class="st">'age'</span>] = df_clean[<span class="st">'age'</span>].<span class="fn">fillna</span>(df_clean[<span class="st">'age'</span>].<span class="fn">median</span>())
+df_clean[<span class="st">'age'</span>] = df_clean[<span class="st">'age'</span>].<span class="fn">astype</span>(<span class="fn">int</span>)
+
+df_clean.<span class="fn">loc</span>[df_clean[<span class="st">'premium'</span>] < <span class="nm">0</span>, <span class="st">'premium'</span>] = np.nan
+df_clean[<span class="st">'premium'</span>] = df_clean[<span class="st">'premium'</span>].<span class="fn">fillna</span>(df_clean[<span class="st">'premium'</span>].<span class="fn">median</span>())
+
+df_clean = df_clean.<span class="fn">drop_duplicates</span>(subset=[<span class="st">'policy_id'</span>])
+
+q_low  = df_clean[<span class="st">'premium'</span>].<span class="fn">quantile</span>(<span class="nm">0.01</span>)
+q_high = df_clean[<span class="st">'premium'</span>].<span class="fn">quantile</span>(<span class="nm">0.99</span>)
+df_clean[<span class="st">'premium_capped'</span>] = df_clean[<span class="st">'premium'</span>].<span class="fn">clip</span>(q_low, q_high)
+
+df_clean[<span class="st">'age_band'</span>] = pd.<span class="fn">cut</span>(
+    df_clean[<span class="st">'age'</span>],
+    bins=[<span class="nm">0</span>, <span class="nm">25</span>, <span class="nm">35</span>, <span class="nm">50</span>, <span class="nm">65</span>, <span class="nm">100</span>],
+    labels=[<span class="st">'18-25'</span>, <span class="st">'26-35'</span>, <span class="st">'36-50'</span>, <span class="st">'51-65'</span>, <span class="st">'65+'</span>]
+)
+
+df_clean[<span class="st">'high_value'</span>] = df_clean[<span class="st">'sum_insured'</span>] >= <span class="nm">150_000</span>
+
+<span class="fn">print</span>(<span class="st">"Clean dataset shape:"</span>, df_clean.shape)
+<span class="fn">print</span>(<span class="st">"Remaining nulls:"</span>)
+<span class="fn">print</span>(df_clean.<span class="fn">isnull</span>().<span class="fn">sum</span>())
+<span class="fn">display</span>(df_clean.<span class="fn">head</span>(<span class="nm">3</span>))</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header"><div class="breakdown-header-text">Line-by-line explanation — Cell 4</div><button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button></div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">df_clean = df.copy()</div><div class="line-exp-text"><strong>Always copy before cleaning.</strong> Working on a copy preserves the original raw data. If you make a mistake during cleaning, you can restart from <code>df</code> without re-reading the file. This is a professional hygiene rule — never mutate your raw import.</div></div>
+        <div class="line-row"><div class="line-code">df_clean['age'].fillna(df_clean['age'].median())</div><div class="line-exp-text"><strong>Imputes missing ages with the median.</strong> <code>.fillna(value)</code> replaces all <code>NaN</code>s in a Series with the given value. The median is preferred over the mean for skewed variables because it is not distorted by outliers. Other strategies: fill with mean, fill with mode (most common), or fill using a group-level median. <span class="r-eq">R: df$age[is.na(df$age)] &lt;- median(df$age, na.rm=TRUE)</span></div></div>
+        <div class="line-row"><div class="line-code">.astype(int)</div><div class="line-exp-text"><strong>Converts the column to integer type.</strong> After imputing the median (which is a float), the age column becomes float64. Since ages are whole numbers, we convert back to int. Note: this only works after all NaN values are filled — you cannot store NaN in an integer column in older Pandas versions. <span class="r-eq">R: as.integer(df$age)</span></div></div>
+        <div class="line-row"><div class="line-code">df_clean.loc[df_clean['premium'] &lt; 0, 'premium'] = np.nan</div><div class="line-exp-text"><strong>Replaces invalid sentinel values (−99) with NaN.</strong> Negative premiums are impossible — they indicate data entry errors. We convert them to NaN first so <code>fillna()</code> can handle them in the next line. The pattern <code>.loc[condition, column] = value</code> is the standard way to conditionally update a column. <span class="r-eq">R: df$premium[df$premium &lt; 0] &lt;- NA</span></div></div>
+        <div class="line-row"><div class="line-code">df_clean.drop_duplicates(subset=['policy_id'])</div><div class="line-exp-text"><strong>Removes duplicate rows</strong> based on <code>policy_id</code>. Each policy should appear once — duplicates indicate data pipeline errors (e.g. a file appended twice). <code>subset</code> specifies which columns define a "duplicate" — here, same policy_id means same policy regardless of other column values. <span class="r-eq">R: distinct(df, policy_id, .keep_all=TRUE)</span></div></div>
+        <div class="line-row"><div class="line-code">df_clean['premium'].quantile(0.01) / .quantile(0.99)</div><div class="line-exp-text"><strong>Computes the 1st and 99th percentile</strong> of the premium distribution. These become the bounds for capping outliers. The <code>.quantile(q)</code> method takes a value between 0 and 1. <span class="r-eq">R: quantile(df$premium, 0.01)</span></div></div>
+        <div class="line-row"><div class="line-code">.clip(q_low, q_high)</div><div class="line-exp-text"><strong>Caps (Winsorises) extreme values</strong> — values below <code>q_low</code> are set to <code>q_low</code>, values above <code>q_high</code> are set to <code>q_high</code>. Winsorisation is a standard actuarial technique for handling outliers in premium and claims data without discarding them entirely. <span class="r-eq">R: pmin(pmax(df$premium, q_low), q_high)</span></div></div>
+        <div class="line-row"><div class="line-code">pd.cut(df_clean['age'], bins=[0,25,35,50,65,100], labels=[...])</div><div class="line-exp-text"><strong>Converts a continuous variable into ordered categories (rating bands).</strong> <code>pd.cut()</code> assigns each age to the appropriate bin — age 22 → "18-25", age 47 → "36-50", etc. This is how actuaries create age bands for rating. Each bin includes the right endpoint: (0,25] means 0 &lt; age ≤ 25. <span class="r-eq">R: cut(df$age, breaks=c(0,25,35,50,65,100), labels=c(...))</span></div></div>
+        <div class="line-row"><div class="line-code">df_clean['high_value'] = df_clean['sum_insured'] >= 150_000</div><div class="line-exp-text"><strong>Creates a boolean column</strong> — True for high-value policies, False otherwise. Boolean columns are useful as binary flags (indicators) in regression models and for quick subset filtering. The comparison operator <code>>=</code> applied to a column returns a boolean Series. <span class="r-eq">R: df$high_value &lt;- df$sum_insured >= 150000</span></div></div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-top"><div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 5</span><span class="code-title-text">Merging tables & building a loss development triangle</span></div><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre class="code-body">np.random.<span class="fn">seed</span>(<span class="nm">21</span>)
+n_claims = <span class="nm">80</span>
+
+claims = pd.<span class="fn">DataFrame</span>({
+    <span class="st">'claim_id'</span>  : [<span class="st">f"CLM-{i:04d}"</span> <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, n_claims+<span class="nm">1</span>)],
+    <span class="st">'policy_id'</span> : np.random.<span class="fn">choice</span>(df_clean[<span class="st">'policy_id'</span>], n_claims, replace=<span class="kw">True</span>),
+    <span class="st">'acc_year'</span>  : np.random.<span class="fn">choice</span>([<span class="nm">2020</span>,<span class="nm">2021</span>,<span class="nm">2022</span>,<span class="nm">2023</span>], n_claims),
+    <span class="st">'dev_year'</span>  : np.random.<span class="fn">choice</span>([<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>,<span class="nm">4</span>], n_claims),
+    <span class="st">'paid'</span>      : np.random.<span class="fn">lognormal</span>(<span class="nm">8</span>, <span class="nm">1</span>, n_claims).<span class="fn">round</span>(<span class="nm">2</span>)
+})
+
+merged = pd.<span class="fn">merge</span>(claims, df_clean[[<span class="st">'policy_id'</span>,<span class="st">'region'</span>,<span class="st">'sum_insured'</span>,<span class="st">'age_band'</span>]],
+                  on=<span class="st">'policy_id'</span>, how=<span class="st">'left'</span>)
+
+<span class="fn">print</span>(<span class="st">"Merged shape:"</span>, merged.shape)
+<span class="fn">display</span>(merged.<span class="fn">head</span>(<span class="nm">4</span>))
+
+triangle = merged.<span class="fn">pivot_table</span>(
+    values=<span class="st">'paid'</span>,
+    index=<span class="st">'acc_year'</span>,
+    columns=<span class="st">'dev_year'</span>,
+    aggfunc=<span class="st">'sum'</span>,
+    fill_value=<span class="nm">0</span>
+)
+
+<span class="fn">print</span>(<span class="st">"\nLoss Development Triangle (cumulative paid, $):"</span>)
+<span class="fn">display</span>(triangle.<span class="fn">round</span>(<span class="nm">0</span>))</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header"><div class="breakdown-header-text">Line-by-line explanation — Cell 5</div><button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button></div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">np.random.choice(df_clean['policy_id'], n_claims, replace=True)</div><div class="line-exp-text"><strong>Randomly samples policy IDs from the clean dataset</strong> with replacement, assigning each claim to an existing policy. <code>replace=True</code> means the same policy can appear multiple times (realistic — one policy can have multiple claims). <span class="r-eq">R: sample(df_clean$policy_id, n_claims, replace=TRUE)</span></div></div>
+        <div class="line-row"><div class="line-code">pd.merge(claims, df_clean[['policy_id','region',...]], on='policy_id', how='left')</div><div class="line-exp-text"><strong>Joins the claims table to the policies table</strong> on the shared key <code>policy_id</code>. We first subset policies to only the columns we need (<code>[['policy_id','region',…]]</code>) to avoid bringing in unneeded columns. <code>how='left'</code> is a left join — all claims are kept; if a policy_id in claims has no match in policies, the policy columns become NaN. Other options: <code>'inner'</code>, <code>'right'</code>, <code>'outer'</code>. <span class="r-eq">R: left_join(claims, df_clean, by='policy_id')</span></div></div>
+        <div class="line-row"><div class="line-code">merged.pivot_table(values='paid', index='acc_year', columns='dev_year', aggfunc='sum', fill_value=0)</div><div class="line-exp-text"><strong>Builds a loss development triangle.</strong> A pivot table reshapes a long-format DataFrame into a wide matrix. <code>index</code> becomes the rows (accident years), <code>columns</code> becomes the columns (development years), <code>values</code> is the number to aggregate, and <code>aggfunc='sum'</code> sums all paid amounts for each (acc_year, dev_year) cell. <code>fill_value=0</code> replaces missing combinations with 0 rather than NaN. This is a fundamental actuarial output used in chain-ladder reserving. <span class="r-eq">R: pivot_wider(...) or reshape()</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- EXERCISES 0.3 -->
+  <div class="section">
+    <div class="sec-num">Practice Exercises</div>
+    <div class="sec-title">Unit 0.3 — Check Your Understanding</div>
+
+    <div class="exercise">
+      <div class="ex-head"><span class="ex-num">EX 0.3.1</span><span class="ex-title">Vectorised Annuity Calculator</span><span class="ex-level beg">beginner</span></div>
+      <div class="ex-body">
+        <div class="ex-task">Using only NumPy (no loops), compute the present value of a whole life annuity-due paying $1 per year for up to 40 years, at interest rates of 5%, 7.5%, and 10%. For each rate, produce an array of cumulative present values at years 1 through 40, and print the total PV at year 40 for each rate. Format results as a table.</div>
+        <div class="ex-hint">💡 Hint: Use <code>np.arange()</code> for year indices, vectorised exponentiation for discount factors, and <code>np.cumsum()</code> for cumulative sums.</div>
+      </div>
+    </div>
+
+    <div class="exercise">
+      <div class="ex-head"><span class="ex-num">EX 0.3.2</span><span class="ex-title">Full Data Cleaning Pipeline</span><span class="ex-level int">intermediate</span></div>
+      <div class="ex-body">
+        <div class="ex-task">Create a DataFrame of 200 life insurance policies with columns: <code>policy_id</code>, <code>age</code> (18–80), <code>gender</code> ('M'/'F'), <code>sum_assured</code> ($10,000–$500,000), <code>annual_premium</code>, and <code>smoker</code> (True/False). Inject: 15 missing ages, 8 invalid premiums (negative), and 3 duplicate policy IDs. Then write a cleaning function that fixes all three issues and returns a clean DataFrame with a new <code>risk_class</code> column ('Standard', 'Rated', 'Preferred') based on age and smoker status.</div>
+        <div class="ex-hint">💡 Hint: Use <code>pd.cut()</code> for age bands, and <code>np.select(conditions, choices)</code> for assigning multi-condition risk classes.</div>
+      </div>
+    </div>
+
+    <div class="exercise">
+      <div class="ex-head"><span class="ex-num">EX 0.3.3</span><span class="ex-title">Chain-Ladder Development Factors</span><span class="ex-level adv">advanced</span></div>
+      <div class="ex-body">
+        <div class="ex-task">Using the loss development triangle built in Cell 5, compute the age-to-age development factors (link ratios) for each development period by dividing cumulative paid in year <em>d+1</em> by cumulative paid in year <em>d</em>, summed across accident years. Then project the incomplete cells of the triangle to estimate ultimate losses for each accident year. This is the Chain-Ladder method — the most widely used reserving technique in non-life actuarial work.</div>
+        <div class="ex-hint">💡 Hint: For each development column pair, sum the numerators and denominators separately before dividing. Use <code>df.iloc[:,col]</code> to select columns by position.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="next-banner">
+    <div><div class="next-lbl">Up next</div><div class="next-title">Unit 0.4 — Data Visualisation for Actuaries</div></div>
+    <button class="next-btn" onclick="switchUnit('u04', document.querySelectorAll('.unit-pill')[3])">Next Unit →</button>
+  </div>
+
+</div>
+</div><!-- /unit 0.3 -->
+
+
+<!-- ══════════════════════════════════════════ UNIT 0.4 ══════ -->
+<div id="u04" class="unit-page">
+<div class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="hero-phase">Unit 0.4 · Phase 0: Foundations — Final Unit</div>
+      <h1 class="hero-title">Data Visualisation<br><span>for Actuaries</span></h1>
+      <p class="hero-sub">Build professional actuarial charts with Matplotlib and Seaborn — claim distributions, loss triangles, exposure summaries, and interactive plots for reports and presentations.</p>
+    </div>
+    <div class="hero-meta">
+      <div class="meta-chip green">Completes Phase 0</div>
+      <div class="meta-chip">~80 min</div>
+      <div class="meta-chip">matplotlib · seaborn · plotly</div>
+    </div>
+  </div>
+</div>
+
+<div class="body-wrap">
+
+  <div class="section">
+    <div class="sec-num">Learning Outcomes</div>
+    <div class="sec-title">By the end of this unit you will be able to…</div>
+    <div class="outcomes-grid">
+      <div class="oc"><div class="oc-icon">📈</div><div class="oc-title">Core chart types</div><div class="oc-body">Build histograms, bar charts, line charts, and scatter plots with professional formatting.</div></div>
+      <div class="oc"><div class="oc-icon">🎨</div><div class="oc-title">Actuarial styling</div><div class="oc-body">Apply consistent colour palettes, fonts, and layout to produce report-ready figures.</div></div>
+      <div class="oc"><div class="oc-icon">🔥</div><div class="oc-title">Heatmaps & triangles</div><div class="oc-body">Visualise loss development triangles and correlation matrices as annotated heatmaps.</div></div>
+      <div class="oc"><div class="oc-icon">🌐</div><div class="oc-title">Interactive charts</div><div class="oc-body">Create zoomable, hoverable Plotly charts for dashboards and web reports.</div></div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <div class="section">
+    <div class="sec-num">Section 1</div>
+    <div class="sec-title">Matplotlib Fundamentals</div>
+    <div class="sec-body"><p>Matplotlib gives you complete control over every element of a chart. The trade-off is verbosity — it is more explicit than R's ggplot2. But that explicitness means you can produce exactly the chart you need for any regulatory report, board presentation, or client deliverable.</p></div>
+
+    <div class="code-block">
+      <div class="code-top"><div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 1</span><span class="code-title-text">Setting up a professional actuarial style</span></div><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre class="code-body"><span class="kw">import</span> <span class="im">matplotlib.pyplot</span> <span class="kw">as</span> plt
+<span class="kw">import</span> <span class="im">matplotlib.ticker</span> <span class="kw">as</span> mticker
+<span class="kw">import</span> <span class="im">seaborn</span> <span class="kw">as</span> sns
+<span class="kw">import</span> <span class="im">pandas</span> <span class="kw">as</span> pd
+<span class="kw">import</span> <span class="im">numpy</span> <span class="kw">as</span> np
+%matplotlib inline
+
+ACTUARY_PALETTE = [<span class="st">'#0a7c5c'</span>, <span class="st">'#378add'</span>, <span class="st">'#e8a020'</span>, <span class="st">'#d4537e'</span>,
+                   <span class="st">'#7c5cbf'</span>, <span class="st">'#3abbb0'</span>, <span class="st">'#c45c2a'</span>]
+
+plt.<span class="fn">rcParams</span>.update({
+    <span class="st">'figure.facecolor'</span>  : <span class="st">'white'</span>,
+    <span class="st">'axes.facecolor'</span>    : <span class="st">'#fafaf8'</span>,
+    <span class="st">'axes.grid'</span>         : <span class="kw">True</span>,
+    <span class="st">'grid.color'</span>        : <span class="st">'#e2e2de'</span>,
+    <span class="st">'grid.linewidth'</span>    : <span class="nm">0.6</span>,
+    <span class="st">'axes.spines.top'</span>   : <span class="kw">False</span>,
+    <span class="st">'axes.spines.right'</span> : <span class="kw">False</span>,
+    <span class="st">'font.family'</span>       : <span class="st">'DejaVu Sans'</span>,
+    <span class="st">'axes.titlesize'</span>    : <span class="nm">12</span>,
+    <span class="st">'axes.titleweight'</span>  : <span class="st">'bold'</span>,
+    <span class="st">'axes.labelsize'</span>    : <span class="nm">10</span>,
+    <span class="st">'xtick.labelsize'</span>   : <span class="nm">9</span>,
+    <span class="st">'ytick.labelsize'</span>   : <span class="nm">9</span>,
+    <span class="st">'figure.dpi'</span>        : <span class="nm">120</span>,
+})
+
+<span class="fn">print</span>(<span class="st">"Actuarial chart style applied ✓"</span>)
+<span class="fn">print</span>(<span class="st">f"Palette: {ACTUARY_PALETTE}"</span>)</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header"><div class="breakdown-header-text">Line-by-line explanation — Cell 1</div><button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button></div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">import matplotlib.ticker as mticker</div><div class="line-exp-text"><strong>Loads Matplotlib's ticker module</strong> which controls how axis tick labels are formatted. We'll use it to display large numbers as "$1.2M" or "1,200,000" instead of raw scientific notation. The alias <code>mticker</code> is standard.</div></div>
+        <div class="line-row"><div class="line-code">ACTUARY_PALETTE = [...]</div><div class="line-exp-text"><strong>Defines a custom colour palette</strong> as a list of hex codes. Capital letters signal it's a constant (a Python convention — the value won't change). Having a standard palette across all your charts creates a professional, consistent visual identity — the same principle used by consulting firms and insurers in their reports. <span class="r-eq">R: scale_fill_manual(values=c(...))</span></div></div>
+        <div class="line-row"><div class="line-code">plt.rcParams.update({...})</div><div class="line-exp-text"><strong>Sets global default styles</strong> for all subsequent charts in the notebook. <code>rcParams</code> (runtime configuration parameters) is a dictionary controlling every visual default. Updating it once in the first cell means every chart automatically inherits your style — you don't repeat styling code in each chart. <span class="r-eq">R: theme_set(theme_minimal())</span></div></div>
+        <div class="line-row"><div class="line-code">'axes.spines.top': False, 'axes.spines.right': False</div><div class="line-exp-text"><strong>Removes the top and right border lines</strong> from all charts. Removing these "spines" produces cleaner, more modern-looking charts — a widely adopted convention in data journalism and actuarial reporting. The left and bottom spines (axes) are kept.</div></div>
+        <div class="line-row"><div class="line-code">'figure.dpi': 120</div><div class="line-exp-text"><strong>Sets the screen resolution</strong> to 120 dots per inch. Higher DPI means crisper charts in the notebook. For publication-quality export (PDF, PNG for reports), you'd use 300 DPI in the <code>savefig()</code> call. Default is 72–96 DPI which can look blurry.</div></div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-top"><div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 2</span><span class="code-title-text">Claim severity distribution — histogram + KDE</span></div><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre class="code-body">np.random.<span class="fn">seed</span>(<span class="nm">42</span>)
+claims_data = np.random.<span class="fn">lognormal</span>(<span class="nm">8.2</span>, <span class="nm">1.1</span>, <span class="nm">800</span>)
+
+fig, axes = plt.<span class="fn">subplots</span>(<span class="nm">1</span>, <span class="nm">2</span>, figsize=(<span class="nm">13</span>, <span class="nm">4.5</span>))
+
+axes[<span class="nm">0</span>].<span class="fn">hist</span>(claims_data, bins=<span class="nm">40</span>, color=ACTUARY_PALETTE[<span class="nm">0</span>],
+            edgecolor=<span class="st">'white'</span>, linewidth=<span class="nm">0.5</span>, alpha=<span class="nm">0.85</span>)
+axes[<span class="nm">0</span>].<span class="fn">axvline</span>(np.<span class="fn">mean</span>(claims_data),  color=ACTUARY_PALETTE[<span class="nm">1</span>], lw=<span class="nm">1.5</span>,
+               linestyle=<span class="st">'--'</span>, label=<span class="st">f"Mean: ${np.mean(claims_data):,.0f}"</span>)
+axes[<span class="nm">0</span>].<span class="fn">axvline</span>(np.<span class="fn">median</span>(claims_data), color=ACTUARY_PALETTE[<span class="nm">2</span>], lw=<span class="nm">1.5</span>,
+               linestyle=<span class="st">':'</span>,  label=<span class="st">f"Median: ${np.median(claims_data):,.0f}"</span>)
+axes[<span class="nm">0</span>].<span class="fn">xaxis</span>.<span class="fn">set_major_formatter</span>(mticker.<span class="fn">FuncFormatter</span>(<span class="kw">lambda</span> x, _: <span class="st">f"${x/1000:.0f}k"</span>))
+axes[<span class="nm">0</span>].<span class="fn">set_title</span>(<span class="st">"Claim Severity Distribution"</span>)
+axes[<span class="nm">0</span>].<span class="fn">set_xlabel</span>(<span class="st">"Claim Amount"</span>)
+axes[<span class="nm">0</span>].<span class="fn">set_ylabel</span>(<span class="st">"Frequency"</span>)
+axes[<span class="nm">0</span>].<span class="fn">legend</span>(fontsize=<span class="nm">9</span>)
+
+sns.<span class="fn">kdeplot</span>(claims_data, ax=axes[<span class="nm">1</span>], color=ACTUARY_PALETTE[<span class="nm">0</span>],
+            fill=<span class="kw">True</span>, alpha=<span class="nm">0.3</span>, linewidth=<span class="nm">2</span>)
+sns.<span class="fn">kdeplot</span>(np.<span class="fn">log</span>(claims_data), ax=axes[<span class="nm">1</span>].twinx(),
+            color=ACTUARY_PALETTE[<span class="nm">1</span>], linestyle=<span class="st">'--'</span>, linewidth=<span class="nm">1.5</span>,
+            label=<span class="st">"log(claims)"</span>)
+axes[<span class="nm">1</span>].<span class="fn">set_title</span>(<span class="st">"KDE — Raw vs Log Scale"</span>)
+axes[<span class="nm">1</span>].<span class="fn">set_xlabel</span>(<span class="st">"Claim Amount"</span>)
+axes[<span class="nm">1</span>].<span class="fn">xaxis</span>.<span class="fn">set_major_formatter</span>(mticker.<span class="fn">FuncFormatter</span>(<span class="kw">lambda</span> x, _: <span class="st">f"${x/1000:.0f}k"</span>))
+
+plt.<span class="fn">suptitle</span>(<span class="st">"Motor Insurance — Claim Severity Analysis"</span>,
+             fontsize=<span class="nm">13</span>, fontweight=<span class="st">'bold'</span>, y=<span class="nm">1.02</span>)
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">savefig</span>(<span class="st">'claim_severity.png'</span>, dpi=<span class="nm">200</span>, bbox_inches=<span class="st">'tight'</span>)
+plt.<span class="fn">show</span>()</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header"><div class="breakdown-header-text">Line-by-line explanation — Cell 2</div><button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button></div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">axes[0].axvline(np.mean(claims_data), color=..., lw=1.5, linestyle='--', label=...)</div><div class="line-exp-text"><strong>Adds a vertical reference line</strong> at the mean claim amount. <code>axvline(x)</code> draws a vertical line at position x. <code>lw</code> is line width, <code>linestyle='--'</code> makes it dashed, and <code>label</code> is the text shown in the legend. Showing both mean and median on the same chart illustrates the right-skewness of the log-normal — mean >> median. <span class="r-eq">R: geom_vline(xintercept=mean(x), linetype='dashed')</span></div></div>
+        <div class="line-row"><div class="line-code">axes[0].xaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"${x/1000:.0f}k"))</div><div class="line-exp-text"><strong>Custom axis tick formatter.</strong> <code>FuncFormatter</code> takes a function that converts the raw tick value into a display string. Here, <code>lambda x, _: f"${x/1000:.0f}k"</code> converts 5000 to "$5k", 10000 to "$10k", etc. The underscore <code>_</code> is a convention for an unused second argument (the tick position). This makes financial charts much more readable than raw numbers. <span class="r-eq">R: scale_x_continuous(labels = scales::dollar_format(scale=0.001, suffix="k"))</span></div></div>
+        <div class="line-row"><div class="line-code">axes[0].legend(fontsize=9)</div><div class="line-exp-text"><strong>Displays the chart legend</strong> with labels from all <code>label=</code> arguments in the chart. <code>fontsize=9</code> keeps it compact. Always include a legend when you have multiple series or reference lines — a chart without one forces readers to guess. <span class="r-eq">R: added automatically by ggplot2</span></div></div>
+        <div class="line-row"><div class="line-code">sns.kdeplot(claims_data, ax=axes[1], fill=True, alpha=0.3, linewidth=2)</div><div class="line-exp-text"><strong>Kernel Density Estimate (KDE) plot</strong> — a smoothed, continuous estimate of the probability density function. <code>fill=True</code> shades the area under the curve, <code>alpha=0.3</code> makes the fill 30% transparent so underlying features are visible. The KDE shows the shape of the distribution more clearly than a histogram with arbitrary bin widths. <span class="r-eq">R: geom_density(fill=TRUE, alpha=0.3)</span></div></div>
+        <div class="line-row"><div class="line-code">axes[1].twinx()</div><div class="line-exp-text"><strong>Creates a second y-axis on the right side</strong> of the same plot, sharing the x-axis. This lets you overlay two variables with different scales — here raw claim amounts and log(claim amounts) on the same x-axis but different y-scales. Use sparingly: dual-axis charts can be misleading. Here it is appropriate because we're showing two different distributions. <span class="r-eq">R: sec.axis argument in scale_y_continuous()</span></div></div>
+        <div class="line-row"><div class="line-code">plt.suptitle("...", fontsize=13, fontweight='bold', y=1.02)</div><div class="line-exp-text"><strong>Sets a super-title</strong> spanning the entire figure (not just one subplot). <code>suptitle</code> is used when you have multiple subplots and want one shared heading. <code>y=1.02</code> nudges it slightly above the subplots to avoid overlapping with subplot titles. <span class="r-eq">R: title() from patchwork or plot_annotation()</span></div></div>
+        <div class="line-row"><div class="line-code">plt.savefig('claim_severity.png', dpi=200, bbox_inches='tight')</div><div class="line-exp-text"><strong>Saves the figure to a PNG file.</strong> <code>dpi=200</code> is high enough for most reports (use 300 for print). <code>bbox_inches='tight'</code> trims unnecessary whitespace from the edges — without it, saved figures sometimes have large blank margins. Always call <code>savefig()</code> before <code>show()</code> — after <code>show()</code>, the figure is cleared from memory. <span class="r-eq">R: ggsave('claim_severity.png', dpi=200)</span></div></div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-top"><div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 3</span><span class="code-title-text">Loss development triangle heatmap</span></div><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre class="code-body">triangle_data = pd.<span class="fn">DataFrame</span>({
+    <span class="nm">1</span>: [<span class="nm">1240000</span>, <span class="nm">1380000</span>, <span class="nm">1520000</span>, <span class="nm">1610000</span>, <span class="nm">1430000</span>],
+    <span class="nm">2</span>: [<span class="nm">2190000</span>, <span class="nm">2410000</span>, <span class="nm">2650000</span>, <span class="nm">2720000</span>, np.nan],
+    <span class="nm">3</span>: [<span class="nm">2780000</span>, <span class="nm">3020000</span>, <span class="nm">3280000</span>, np.nan,   np.nan],
+    <span class="nm">4</span>: [<span class="nm">3100000</span>, <span class="nm">3350000</span>, np.nan,   np.nan,   np.nan],
+    <span class="nm">5</span>: [<span class="nm">3210000</span>, np.nan,   np.nan,   np.nan,   np.nan],
+}, index=[<span class="nm">2019</span>, <span class="nm">2020</span>, <span class="nm">2021</span>, <span class="nm">2022</span>, <span class="nm">2023</span>])
+
+triangle_display = triangle_data / <span class="nm">1_000_000</span>
+
+fig, ax = plt.<span class="fn">subplots</span>(figsize=(<span class="nm">9</span>, <span class="nm">4.5</span>))
+
+sns.<span class="fn">heatmap</span>(
+    triangle_display,
+    ax=ax,
+    annot=<span class="kw">True</span>,
+    fmt=<span class="st">".2f"</span>,
+    cmap=<span class="st">"YlOrBr"</span>,
+    linewidths=<span class="nm">0.5</span>,
+    linecolor=<span class="st">'white'</span>,
+    mask=triangle_display.<span class="fn">isnull</span>(),
+    cbar_kws={<span class="st">'label'</span>: <span class="st">'Cumulative Paid ($M)'</span>}
+)
+
+ax.<span class="fn">set_title</span>(<span class="st">"Loss Development Triangle\nCumulative Paid Claims ($M)"</span>,
+            fontsize=<span class="nm">12</span>, fontweight=<span class="st">'bold'</span>, pad=<span class="nm">12</span>)
+ax.<span class="fn">set_xlabel</span>(<span class="st">"Development Year"</span>, labelpad=<span class="nm">8</span>)
+ax.<span class="fn">set_ylabel</span>(<span class="st">"Accident Year"</span>, labelpad=<span class="nm">8</span>)
+ax.<span class="fn">tick_params</span>(left=<span class="kw">False</span>, bottom=<span class="kw">False</span>)
+
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header"><div class="breakdown-header-text">Line-by-line explanation — Cell 3</div><button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button></div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">triangle_display = triangle_data / 1_000_000</div><div class="line-exp-text"><strong>Scales values to millions</strong> for display. Dividing a Pandas DataFrame by a scalar divides every element. Charts displaying raw numbers like "3,210,000" look cluttered — "$3.21M" is far more readable. Always scale financial data before plotting.</div></div>
+        <div class="line-row"><div class="line-code">sns.heatmap(triangle_display, annot=True, fmt=".2f", cmap="YlOrBr", ...)</div><div class="line-exp-text"><strong>Draws a heatmap</strong> — a grid of coloured cells where colour intensity represents value magnitude. <code>annot=True</code> prints the actual number inside each cell. <code>fmt=".2f"</code> formats the annotation as a 2-decimal float. <code>cmap="YlOrBr"</code> uses a yellow-orange-brown colour map — development increases are easy to see. Heatmaps are the standard visualisation for loss development triangles. <span class="r-eq">R: ggplot + geom_tile() + geom_text()</span></div></div>
+        <div class="line-row"><div class="line-code">mask=triangle_display.isnull()</div><div class="line-exp-text"><strong>Hides future/unknown cells.</strong> The <code>mask</code> argument takes a boolean DataFrame — cells where the mask is True are left blank (not coloured). Since our triangle has NaN in the future cells (which don't exist yet), masking them leaves those cells white — correctly showing the triangle shape of a development table.</div></div>
+        <div class="line-row"><div class="line-code">linewidths=0.5, linecolor='white'</div><div class="line-exp-text"><strong>Draws white grid lines</strong> between cells, making the individual cells more distinct. For a 5×5 triangle, grid lines are essential — without them the heatmap looks like a blurry blob. Adjust <code>linewidths</code> to taste: 0.5 is subtle, 2.0 would be very prominent.</div></div>
+        <div class="line-row"><div class="line-code">ax.tick_params(left=False, bottom=False)</div><div class="line-exp-text"><strong>Removes tick marks</strong> (the small dashes on the axes) while keeping the tick labels. Tick marks look cluttered on heatmaps where the cells are already clearly delineated. This is a small but professional finishing touch.</div></div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-top"><div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 4</span><span class="code-title-text">Portfolio summary — multi-panel actuarial dashboard</span></div><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre class="code-body">np.random.<span class="fn">seed</span>(<span class="nm">5</span>)
+n = <span class="nm">600</span>
+df_plot = pd.<span class="fn">DataFrame</span>({
+    <span class="st">'region'</span>    : np.random.<span class="fn">choice</span>([<span class="st">'Harare'</span>,<span class="st">'Bulawayo'</span>,<span class="st">'Mutare'</span>,<span class="st">'Gweru'</span>,<span class="st">'Masvingo'</span>], n),
+    <span class="st">'product'</span>   : np.random.<span class="fn">choice</span>([<span class="st">'Motor'</span>,<span class="st">'Life'</span>,<span class="st">'Property'</span>], n, p=[<span class="nm">0.5</span>,<span class="nm">0.3</span>,<span class="nm">0.2</span>]),
+    <span class="st">'premium'</span>   : np.random.<span class="fn">lognormal</span>(<span class="nm">7.2</span>, <span class="nm">0.6</span>, n),
+    <span class="st">'claim_amt'</span> : np.random.<span class="fn">lognormal</span>(<span class="nm">7.8</span>, <span class="nm">1.1</span>, n),
+    <span class="st">'year'</span>      : np.random.<span class="fn">choice</span>(<span class="fn">range</span>(<span class="nm">2019</span>, <span class="nm">2024</span>), n)
+})
+
+fig = plt.<span class="fn">figure</span>(figsize=(<span class="nm">14</span>, <span class="nm">10</span>))
+fig.<span class="fn">suptitle</span>(<span class="st">"Insurance Portfolio Dashboard — FY2023"</span>,
+             fontsize=<span class="nm">14</span>, fontweight=<span class="st">'bold'</span>, y=<span class="nm">0.98</span>)
+
+ax1 = fig.<span class="fn">add_subplot</span>(<span class="nm">2</span>, <span class="nm">2</span>, <span class="nm">1</span>)
+region_prem = df_plot.<span class="fn">groupby</span>(<span class="st">'region'</span>)[<span class="st">'premium'</span>].<span class="fn">sum</span>().<span class="fn">sort_values</span>()
+region_prem.plot.<span class="fn">barh</span>(ax=ax1, color=ACTUARY_PALETTE[:<span class="fn">len</span>(region_prem)])
+ax1.<span class="fn">xaxis</span>.<span class="fn">set_major_formatter</span>(mticker.<span class="fn">FuncFormatter</span>(<span class="kw">lambda</span> x,_: <span class="st">f"${x/1e6:.1f}M"</span>))
+ax1.<span class="fn">set_title</span>(<span class="st">"Premium Written by Region"</span>)
+ax1.<span class="fn">set_xlabel</span>(<span class="st">"Total Premium"</span>)
+ax1.<span class="fn">set_ylabel</span>(<span class="st">""</span>)
+
+ax2 = fig.<span class="fn">add_subplot</span>(<span class="nm">2</span>, <span class="nm">2</span>, <span class="nm">2</span>)
+product_counts = df_plot[<span class="st">'product'</span>].<span class="fn">value_counts</span>()
+ax2.<span class="fn">pie</span>(product_counts, labels=product_counts.index,
+       colors=ACTUARY_PALETTE[:<span class="nm">3</span>], autopct=<span class="st">'%1.1f%%'</span>,
+       startangle=<span class="nm">90</span>, pctdistance=<span class="nm">0.75</span>,
+       wedgeprops={<span class="st">'edgecolor'</span>:<span class="st">'white'</span>,<span class="st">'linewidth'</span>:<span class="nm">2</span>})
+ax2.<span class="fn">set_title</span>(<span class="st">"Portfolio Mix by Product"</span>)
+
+ax3 = fig.<span class="fn">add_subplot</span>(<span class="nm">2</span>, <span class="nm">2</span>, <span class="nm">3</span>)
+yearly = df_plot.<span class="fn">groupby</span>(<span class="st">'year'</span>)[<span class="st">'premium'</span>,<span class="st">'claim_amt'</span>].<span class="fn">sum</span>() / <span class="nm">1e6</span>
+ax3.<span class="fn">plot</span>(yearly.index, yearly[<span class="st">'premium'</span>],  marker=<span class="st">'o'</span>, color=ACTUARY_PALETTE[<span class="nm">0</span>], label=<span class="st">'Premium'</span>, lw=<span class="nm">2</span>)
+ax3.<span class="fn">plot</span>(yearly.index, yearly[<span class="st">'claim_amt'</span>], marker=<span class="st">'s'</span>, color=ACTUARY_PALETTE[<span class="nm">3</span>], label=<span class="st">'Claims'</span>,  lw=<span class="nm">2</span>)
+ax3.<span class="fn">fill_between</span>(yearly.index, yearly[<span class="st">'premium'</span>], yearly[<span class="st">'claim_amt'</span>],
+                 alpha=<span class="nm">0.1</span>, color=ACTUARY_PALETTE[<span class="nm">0</span>])
+ax3.<span class="fn">set_title</span>(<span class="st">"Premium vs Claims Trend ($M)"</span>)
+ax3.<span class="fn">set_xlabel</span>(<span class="st">"Year"</span>)
+ax3.<span class="fn">legend</span>()
+
+ax4 = fig.<span class="fn">add_subplot</span>(<span class="nm">2</span>, <span class="nm">2</span>, <span class="nm">4</span>)
+<span class="kw">for</span> i, product <span class="kw">in</span> <span class="fn">enumerate</span>(df_plot[<span class="st">'product'</span>].<span class="fn">unique</span>()):
+    subset = df_plot[df_plot[<span class="st">'product'</span>]==product]
+    ax4.<span class="fn">scatter</span>(subset[<span class="st">'premium'</span>], subset[<span class="st">'claim_amt'</span>],
+               alpha=<span class="nm">0.35</span>, s=<span class="nm">18</span>, color=ACTUARY_PALETTE[i], label=product)
+ax4.<span class="fn">set_xscale</span>(<span class="st">'log'</span>)
+ax4.<span class="fn">set_yscale</span>(<span class="st">'log'</span>)
+ax4.<span class="fn">set_title</span>(<span class="st">"Premium vs Claim Amount (log scale)"</span>)
+ax4.<span class="fn">set_xlabel</span>(<span class="st">"Premium ($)"</span>)
+ax4.<span class="fn">set_ylabel</span>(<span class="st">"Claim Amount ($)"</span>)
+ax4.<span class="fn">legend</span>(markerscale=<span class="nm">1.5</span>)
+
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">savefig</span>(<span class="st">'portfolio_dashboard.png'</span>, dpi=<span class="nm">180</span>, bbox_inches=<span class="st">'tight'</span>)
+plt.<span class="fn">show</span>()</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header"><div class="breakdown-header-text">Line-by-line explanation — Cell 4</div><button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button></div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">fig = plt.figure(figsize=(14, 10))</div><div class="line-exp-text"><strong>Creates a figure without subplots</strong> — we'll add them manually with <code>add_subplot()</code>. This gives more control over layout than <code>plt.subplots()</code>. The figure is the overall canvas; subplots are individual chart areas added to it. <span class="r-eq">R: par(mfrow=c(2,2)) or cowplot/patchwork</span></div></div>
+        <div class="line-row"><div class="line-code">ax1 = fig.add_subplot(2, 2, 1)</div><div class="line-exp-text"><strong>Adds the first subplot</strong> to a 2×2 grid. The arguments are (nrows, ncols, position) — position counts left-to-right, top-to-bottom. So (2,2,1) is top-left, (2,2,2) is top-right, (2,2,3) bottom-left, (2,2,4) bottom-right.</div></div>
+        <div class="line-row"><div class="line-code">region_prem.plot.barh(ax=ax1, color=...)</div><div class="line-exp-text"><strong>Pandas' built-in plot methods</strong> wrap Matplotlib. <code>.plot.barh()</code> draws a horizontal bar chart directly from a Series. The <code>ax=ax1</code> argument places it on the correct subplot. Pandas plot methods are a shortcut — for more control, use raw Matplotlib. <span class="r-eq">R: ggplot + geom_col() + coord_flip()</span></div></div>
+        <div class="line-row"><div class="line-code">ax2.pie(..., autopct='%1.1f%%', startangle=90, pctdistance=0.75)</div><div class="line-exp-text"><strong>Draws a pie chart.</strong> <code>autopct='%1.1f%%'</code> adds percentage labels to each slice formatted to 1 decimal place. <code>startangle=90</code> starts the first slice at the top (12 o'clock position). <code>pctdistance=0.75</code> moves the labels to 75% of the radius — inside the slices. <code>wedgeprops</code> styles the slice borders.</div></div>
+        <div class="line-row"><div class="line-code">ax3.fill_between(yearly.index, yearly['premium'], yearly['claim_amt'], alpha=0.1)</div><div class="line-exp-text"><strong>Shades the area between two lines</strong> — visually emphasising the profit margin (premium minus claims). <code>alpha=0.1</code> makes it very faint. <code>fill_between</code> is a powerful chart element for showing bands, confidence intervals, or margins. <span class="r-eq">R: geom_ribbon(aes(ymin=claims, ymax=premium))</span></div></div>
+        <div class="line-row"><div class="line-code">for i, product in enumerate(df_plot['product'].unique()):</div><div class="line-exp-text"><strong><code>enumerate()</code> gives both index and value</strong> as you loop. Here <code>i</code> is 0, 1, 2 and <code>product</code> is 'Motor', 'Life', 'Property'. We use <code>i</code> to pick the colour from the palette, and <code>product</code> to filter and label the data. <span class="r-eq">R: ggplot + geom_point(aes(color=product))</span></div></div>
+        <div class="line-row"><div class="line-code">ax4.set_xscale('log') / ax4.set_yscale('log')</div><div class="line-exp-text"><strong>Sets the axis to logarithmic scale.</strong> When data spans multiple orders of magnitude (premiums from $100 to $100,000), a log scale is essential — it prevents small values from being invisible. Log-log scatter plots are standard in actuarial work for severity analysis. <span class="r-eq">R: scale_x_log10() + scale_y_log10()</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- SECTION 2: PLOTLY -->
+  <div class="section">
+    <div class="sec-num">Section 2</div>
+    <div class="sec-title">Interactive Charts with Plotly</div>
+    <div class="sec-body"><p>Plotly produces charts that users can zoom, pan, hover over, and download — essential for web dashboards and interactive reports. The syntax is similar to Matplotlib but produces HTML outputs rather than static images.</p></div>
+
+    <div class="code-block">
+      <div class="code-top"><div class="code-top-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-cell-label">Cell 5</span><span class="code-title-text">Interactive premium trend chart with Plotly</span></div><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre class="code-body"><span class="kw">import</span> <span class="im">plotly.graph_objects</span> <span class="kw">as</span> go
+<span class="kw">from</span> <span class="im">plotly.subplots</span> <span class="kw">import</span> make_subplots
+
+yearly_by_product = (df_plot
+    .<span class="fn">groupby</span>([<span class="st">'year'</span>, <span class="st">'product'</span>])[<span class="st">'premium'</span>]
+    .<span class="fn">sum</span>()
+    .<span class="fn">reset_index</span>()
+)
+yearly_by_product[<span class="st">'premium_m'</span>] = yearly_by_product[<span class="st">'premium'</span>] / <span class="nm">1e6</span>
+
+fig = make_subplots(
+    rows=<span class="nm">1</span>, cols=<span class="nm">2</span>,
+    subplot_titles=[<span class="st">"Premium by Product (Annual)"</span>, <span class="st">"Portfolio Mix Over Time"</span>]
+)
+
+colors = {<span class="st">'Motor'</span>: <span class="st">'#0a7c5c'</span>, <span class="st">'Life'</span>: <span class="st">'#378add'</span>, <span class="st">'Property'</span>: <span class="st">'#e8a020'</span>}
+
+<span class="kw">for</span> product, color <span class="kw">in</span> colors.<span class="fn">items</span>():
+    sub = yearly_by_product[yearly_by_product[<span class="st">'product'</span>] == product]
+    fig.<span class="fn">add_trace</span>(go.<span class="fn">Scatter</span>(
+        x=sub[<span class="st">'year'</span>], y=sub[<span class="st">'premium_m'</span>],
+        mode=<span class="st">'lines+markers'</span>, name=product,
+        line=<span class="fn">dict</span>(color=color, width=<span class="nm">2.5</span>),
+        marker=<span class="fn">dict</span>(size=<span class="nm">8</span>),
+        hovertemplate=<span class="st">f"&lt;b&gt;{product}&lt;/b&gt;&lt;br&gt;Year: %{{x}}&lt;br&gt;Premium: $%{{y:.2f}}M&lt;extra&gt;&lt;/extra&gt;"
+    ), row=<span class="nm">1</span>, col=<span class="nm">1</span>)
+
+<span class="kw">for</span> product, color <span class="kw">in</span> colors.<span class="fn">items</span>():
+    sub = yearly_by_product[yearly_by_product[<span class="st">'product'</span>] == product]
+    fig.<span class="fn">add_trace</span>(go.<span class="fn">Bar</span>(
+        x=sub[<span class="st">'year'</span>], y=sub[<span class="st">'premium_m'</span>],
+        name=product, marker_color=color,
+        showlegend=<span class="kw">False</span>
+    ), row=<span class="nm">1</span>, col=<span class="nm">2</span>)
+
+fig.<span class="fn">update_layout</span>(
+    title_text=<span class="st">"Interactive Portfolio Analysis"</span>,
+    title_font_size=<span class="nm">16</span>,
+    barmode=<span class="st">'stack'</span>,
+    height=<span class="nm">420</span>,
+    template=<span class="st">'plotly_white'</span>,
+    hovermode=<span class="st">'x unified'</span>,
+    legend=<span class="fn">dict</span>(orientation=<span class="st">'h'</span>, y=-<span class="nm">0.15</span>)
+)
+fig.<span class="fn">update_yaxes</span>(tickprefix=<span class="st">"$"</span>, ticksuffix=<span class="st">"M"</span>)
+fig.<span class="fn">show</span>()
+fig.<span class="fn">write_html</span>(<span class="st">'portfolio_interactive.html'</span>)</pre>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header"><div class="breakdown-header-text">Line-by-line explanation — Cell 5</div><button class="breakdown-toggle" onclick="toggleBreakdown(this)">collapse ▲</button></div>
+      <div class="line-rows">
+        <div class="line-row"><div class="line-code">import plotly.graph_objects as go</div><div class="line-exp-text"><strong>Loads Plotly's low-level graph objects module.</strong> This gives you fine-grained control over every chart element — equivalent to using raw Matplotlib rather than Seaborn. The alias <code>go</code> is standard. Plotly also has a high-level <code>plotly.express</code> module for quick charts — we use <code>graph_objects</code> for full control.</div></div>
+        <div class="line-row"><div class="line-code">make_subplots(rows=1, cols=2, subplot_titles=[...])</div><div class="line-exp-text"><strong>Creates a Plotly figure with multiple subplots.</strong> Returns a figure object that traces are added to. <code>subplot_titles</code> sets the title for each panel. Plotly's subplot system works similarly to Matplotlib's but produces interactive output.</div></div>
+        <div class="line-row"><div class="line-code">for product, color in colors.items():</div><div class="line-exp-text"><strong>Iterates over a dictionary's key-value pairs.</strong> <code>.items()</code> returns each (key, value) tuple — here (product_name, hex_color). This pattern is the standard way to loop over a dictionary when you need both the key and value simultaneously. <span class="r-eq">R: for(nm in names(colors)) { ... }</span></div></div>
+        <div class="line-row"><div class="line-code">fig.add_trace(go.Scatter(...), row=1, col=1)</div><div class="line-exp-text"><strong>Adds a trace (data series) to the figure.</strong> <code>go.Scatter</code> draws a line/point chart. <code>row</code> and <code>col</code> specify which subplot to place it in. Each call to <code>add_trace()</code> adds one series — we loop over products to add three lines to the left panel and three bars to the right.</div></div>
+        <div class="line-row"><div class="line-code">hovertemplate=f"&lt;b&gt;{product}&lt;/b&gt;&lt;br&gt;Year: %{{x}}..."</div><div class="line-exp-text"><strong>Customises the hover tooltip.</strong> <code>%{x}</code> and <code>%{y:.2f}</code> are Plotly template variables — they insert the actual x and y values at the cursor position. The <code>f-string</code> interpolates <code>{product}</code> at plot-creation time. <code>&lt;extra&gt;&lt;/extra&gt;</code> removes the default trace name box. Good hover templates make interactive charts far more useful.</div></div>
+        <div class="line-row"><div class="line-code">barmode='stack'</div><div class="line-exp-text"><strong>Stacks bar chart segments</strong> for the right panel, showing total premium with product breakdown visible within each bar. Options are <code>'group'</code> (side-by-side) or <code>'stack'</code>. Stacked bars are excellent for showing composition over time — a core actuarial visualisation.</div></div>
+        <div class="line-row"><div class="line-code">hovermode='x unified'</div><div class="line-exp-text"><strong>Shows all series values in one tooltip</strong> when hovering over any x position. Instead of separate tooltips per line, a single panel appears listing all products' values for that year. Very useful for comparing multiple series — standard for financial trend charts.</div></div>
+        <div class="line-row"><div class="line-code">fig.write_html('portfolio_interactive.html')</div><div class="line-exp-text"><strong>Saves the chart as a standalone HTML file.</strong> This file can be opened in any browser, shared by email, or embedded in a web page — no Python needed to view it. This is how you deliver interactive actuarial charts to clients or management. <span class="r-eq">R: htmlwidgets::saveWidget()</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- EXERCISES 0.4 -->
+  <div class="section">
+    <div class="sec-num">Practice Exercises</div>
+    <div class="sec-title">Unit 0.4 — Check Your Understanding</div>
+
+    <div class="exercise">
+      <div class="ex-head"><span class="ex-num">EX 0.4.1</span><span class="ex-title">Claim Severity by Product Line</span><span class="ex-level beg">beginner</span></div>
+      <div class="ex-body">
+        <div class="ex-task">Using the <code>df_plot</code> dataset from Cell 4, create a 1×3 figure showing: (1) a box plot of claim amounts by product using Seaborn's <code>boxplot()</code>, (2) a violin plot of the same data showing the full distribution shape, and (3) a bar chart showing mean, median, and 90th percentile claims per product side by side. Apply the ACTUARY_PALETTE and save the figure.</div>
+        <div class="ex-hint">💡 Hint: For the grouped bar chart, build a summary DataFrame with three columns (mean, median, p90) and use <code>.plot.bar()</code> with <code>ax=ax</code>.</div>
+      </div>
+    </div>
+
+    <div class="exercise">
+      <div class="ex-head"><span class="ex-num">EX 0.4.2</span><span class="ex-title">Correlation Heatmap — Rating Factors</span><span class="ex-level int">intermediate</span></div>
+      <div class="ex-body">
+        <div class="ex-task">Generate a dataset of 400 motor policies with columns: <code>age</code>, <code>vehicle_age</code>, <code>engine_cc</code>, <code>annual_mileage</code>, <code>claims_last_3yr</code>, and <code>premium</code>. Compute the correlation matrix using <code>df.corr()</code> and display it as a Seaborn heatmap with a diverging colour map (<code>cmap='RdYlGn_r'</code>), annotations, and a title. Which variables are most correlated with premium?</div>
+        <div class="ex-hint">💡 Hint: Use <code>sns.heatmap(corr, vmin=-1, vmax=1, center=0)</code> to anchor the colour scale symmetrically around zero.</div>
+      </div>
+    </div>
+
+    <div class="exercise">
+      <div class="ex-head"><span class="ex-num">EX 0.4.3</span><span class="ex-title">Interactive Reserve Run-Off Chart</span><span class="ex-level adv">advanced</span></div>
+      <div class="ex-body">
+        <div class="ex-task">Build an interactive Plotly chart showing reserve run-off over 10 development years for three accident years (2021, 2022, 2023). Each line represents how outstanding reserves decline as claims are paid. Add shaded confidence bands (±10%) around each line using <code>go.Scatter</code> with <code>fill='tonexty'</code>. Include a dropdown that toggles between viewing paid claims and outstanding reserves. Save as HTML.</div>
+        <div class="ex-hint">💡 Hint: Confidence bands require two traces per line — upper and lower bounds. Set <code>mode='lines'</code>, <code>fillcolor</code> with opacity, and <code>showlegend=False</code> for the band traces.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- PHASE COMPLETE -->
+  <div class="section">
+    <div class="sec-num">Phase 0 Complete</div>
+    <div class="sec-title">Python Foundations Cheat Sheet</div>
+    <div class="sec-body"><p>Before moving to Phase 1, use this reference to confirm you can recall the key patterns from each unit without looking anything up. These form the bedrock of everything in Phase 1 and 2.</p></div>
+
+    <div class="cheat-grid">
+      <div class="cheat-card">
+        <div class="cheat-head">Unit 0.1 · Setup</div>
+        <div class="cheat-rows">
+          <div class="cheat-row"><span class="cheat-code">conda activate actuarial</span><span class="cheat-desc">Activate environment</span></div>
+          <div class="cheat-row"><span class="cheat-code">jupyter notebook</span><span class="cheat-desc">Launch Jupyter</span></div>
+          <div class="cheat-row"><span class="cheat-code">%matplotlib inline</span><span class="cheat-desc">Show plots inline</span></div>
+          <div class="cheat-row"><span class="cheat-code">df.head() / .info()</span><span class="cheat-desc">First look at data</span></div>
+        </div>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-head">Unit 0.2 · Core Python</div>
+        <div class="cheat-rows">
+          <div class="cheat-row"><span class="cheat-code">if / elif / else:</span><span class="cheat-desc">Conditional logic</span></div>
+          <div class="cheat-row"><span class="cheat-code">for x in list:</span><span class="cheat-desc">Iterate over items</span></div>
+          <div class="cheat-row"><span class="cheat-code">[x*2 for x in lst]</span><span class="cheat-desc">List comprehension</span></div>
+          <div class="cheat-row"><span class="cheat-code">def fn(x, y=1):</span><span class="cheat-desc">Define a function</span></div>
+          <div class="cheat-row"><span class="cheat-code">try: / except E:</span><span class="cheat-desc">Error handling</span></div>
+        </div>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-head">Unit 0.3 · NumPy</div>
+        <div class="cheat-rows">
+          <div class="cheat-row"><span class="cheat-code">np.array([...])</span><span class="cheat-desc">Create array</span></div>
+          <div class="cheat-row"><span class="cheat-code">np.arange(1, 11)</span><span class="cheat-desc">Integer sequence</span></div>
+          <div class="cheat-row"><span class="cheat-code">arr[arr > 0]</span><span class="cheat-desc">Boolean indexing</span></div>
+          <div class="cheat-row"><span class="cheat-code">np.percentile(a, 95)</span><span class="cheat-desc">Percentile / VaR</span></div>
+          <div class="cheat-row"><span class="cheat-code">np.random.seed(42)</span><span class="cheat-desc">Reproducibility</span></div>
+        </div>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-head">Unit 0.3 · Pandas</div>
+        <div class="cheat-rows">
+          <div class="cheat-row"><span class="cheat-code">pd.read_csv()</span><span class="cheat-desc">Load data</span></div>
+          <div class="cheat-row"><span class="cheat-code">df.dropna() / .fillna()</span><span class="cheat-desc">Handle missing</span></div>
+          <div class="cheat-row"><span class="cheat-code">df.groupby().agg()</span><span class="cheat-desc">Group & summarise</span></div>
+          <div class="cheat-row"><span class="cheat-code">pd.merge(df1, df2)</span><span class="cheat-desc">Join tables</span></div>
+          <div class="cheat-row"><span class="cheat-code">df.pivot_table()</span><span class="cheat-desc">Reshape / triangle</span></div>
+        </div>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-head">Unit 0.4 · Visualisation</div>
+        <div class="cheat-rows">
+          <div class="cheat-row"><span class="cheat-code">plt.subplots(r, c)</span><span class="cheat-desc">Create subplot grid</span></div>
+          <div class="cheat-row"><span class="cheat-code">ax.hist() / .bar()</span><span class="cheat-desc">Histogram / bar chart</span></div>
+          <div class="cheat-row"><span class="cheat-code">sns.heatmap(df)</span><span class="cheat-desc">Heatmap / triangle</span></div>
+          <div class="cheat-row"><span class="cheat-code">plt.savefig(dpi=200)</span><span class="cheat-desc">Export to file</span></div>
+          <div class="cheat-row"><span class="cheat-code">fig.write_html()</span><span class="cheat-desc">Interactive HTML</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-complete">
+    <div class="pc-icon">🎓</div>
+    <div class="pc-title">Phase 0 Complete — Python Foundations</div>
+    <div class="pc-sub">You've covered setup, core Python, NumPy arrays, Pandas data manipulation, and actuarial visualisation. Every tool you need for Phase 1 is now in your toolkit.</div>
+    <div class="pc-badges">
+      <span class="pc-badge">✓ Unit 0.1 — Setup & Mindset</span>
+      <span class="pc-badge">✓ Unit 0.2 — Core Python</span>
+      <span class="pc-badge">✓ Unit 0.3 — NumPy & Pandas</span>
+      <span class="pc-badge">✓ Unit 0.4 — Visualisation</span>
+    </div>
+    <a href="#" class="pc-next-btn">Begin Phase 1 → Numerical Calculus</a>
+  </div>
+
+</div>
+</div><!-- /unit 0.4 -->
+
+<script>
+function switchUnit(id, btn) {
+  document.querySelectorAll('.unit-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.unit-pill').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+function showTab(btn, tabId) {
+  const section = btn.closest('.section');
+  section.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  section.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+function toggleBreakdown(btn) {
+  const rows = btn.closest('.breakdown').querySelector('.line-rows');
+  const hidden = rows.style.display === 'none';
+  rows.style.display = hidden ? '' : 'none';
+  btn.textContent = hidden ? 'collapse ▲' : 'expand ▼';
+}
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText || pre.textContent).then(() => {
+    btn.textContent = 'copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>
